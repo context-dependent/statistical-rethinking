@@ -1,0 +1,228 @@
+# Unit 6: Ordered Categories and Multilevel models
+
+## Ordered Categories
+
+- Ethics! 
+- Trolley problem is an ethics thought experiment
+- Phillipa Foot, 1967, was the first to use the trolley problem in a systematic analysis of ethics
+- "trolley scenarios" are a common way to study moral judgments through experimentation
+- it reveals three 'principles', or different positions of the agent with respect to the problem: action, intention, and contact
+- responses on surveys about the trolley problem are often encoded as ordered categories (likert scales)
+- studying the influence of the agent's position on the subjective appropriateness of the agent's action is the illustrative example for this unit. 
+
+### What is an ordered category?
+
+- ordered categories are categories with a natural ordering, but without a natural distance between them. 
+- for example, the categories "strongly disagree", "disagree", "neutral", "agree", and "strongly agree" are ordered categories.
+- OCs often have anchor points, but anchor points aren't shared by all respondents
+
+### The key insight
+
+- The key is to stop thinking about OCs as discrete categories, and start thinking of them as a cumulative distribution function (CDF)
+- The shape of the implied ECDF gives us 'cut points' that we can use to define the distribution of the latent variable
+
+### How to make it a function of variables?
+
+- stratify cutpoints,
+- offset each cutpoint by value of linear model $\phi_i$
+
+$$
+\begin{align*}
+R_i &\sim OrderedLogit(\phi_i, \alpha) \\
+\phi_i &= \beta_A A_i + \beta_I I_i + \beta_C C_i \\
+\beta &\sim Normal(0, .5) \\
+\alpha_j &\sim Normal(0, 1)
+\end{align*}
+$$
+
+- $\phi_i$ is the latent variable
+
+
+```{r}
+library(rethinking)
+library(dplyr)
+library(tibble)
+data(Trolley)
+
+d <- as_tibble(Trolley)
+
+mRX <- ulam(
+    alist(
+        response ~ dordlogit(phi, alpha),
+        phi <- beta_A * action + beta_I * intention + beta_C * contact,
+        c(beta_A, beta_I, beta_C) ~ normal(0, 0.5),
+        alpha ~ normal(0, 1)
+    ),
+    data = d,
+    chains = 4,
+    cores = 4
+)
+```
+
+```{r}
+precis(mRX, depth = 2)
+rethinking::plotchains(mRX, pars = c("beta_A", "beta_I", "beta_C"))
+plot(mRX)
+```
+
+### Issues
+
+- the sample is voluntary, which means that participation P is a collider, and we can't use it as a predictor
+- We can't use the model to get causal effects, but we can get more accurate descriptive models if we stratify by education-level. 
+
+### Ordered Monotonic Predictors
+
+- Education is an ordered category. It's unlikely that each level has the same effect, and we want a parameter for each level, but how do we enforce ordering, so that each level has a larger effect than the previous level?
+- To manage this, we think of the maximum value of education as the full potential effect of education on the outcome, then we attribute some proportion of that effect to each level of education. 
+- Mcelreath does this with a simplex of $\delta$ parameters, which give the proportion of the maximum effect that each level of education has.
+- We use the Dirichlet distribution for the simplex, which is parameterized with a vector of $\alpha$ values, each of which controls the relative probability of each level of education. 
+
+### Takeaways
+
+- Should not marginalize over this sample, because it's not a random sample. We should instead 'post-stratify' over a new target
+- Lots of different stories used in the trolley data
+- Lots of individuals present in the data
+- Multilevel models give us a way to manage that complexity
+
+## Multilevel models
+
+- In the trolley problem experiment, we have lots of different individuals and lots of different stories
+- Each of these individuals has, and each of the stories elicit, a different response
+- We could use a different coefficient for each story, but the model has 'anterograde amnesia'. It doesn't use information from one story to inform the coefficients of another story.
+- Multilevel models allow us to use information from one story to inform the coefficients of another story.
+
+### What is a multilevel model?
+
+1. model observed groups / individuals
+2. model population of groups / individuals
+
+The population model creates a kind of 'memory'. It allows the model to learn faster and more data efficiently. They also resist overfitting better than non-hierarchical models. 
+
+### Starbucks
+
+- Starbucks has franchise locations in different cities
+- Each of these locations share much in common, but they also have unique characteristics
+- We can use a multilevel model to model the characteristics of each location, and the characteristics of the population of locations.
+- Multilevel models simultaneously estimate the parameter for the population of locations, and uses that estimate as the prior for the parameter for each location.
+
+### Regularization
+
+- Another reason for MMs is that they adaptively regularize their estimates
+- Complete pooling treats all clusters as identical, inducing underfitting
+- No pooling treats all clusters as independent and unrelated, which leads to overfitting
+- Partial pooling allows the model to adaptively regularize its estimates, which leads to better predictions than no pooling, and better sample efficiency than complete pooling. 
+
+### Reedfrogs
+
+- reedfrogs data represents 48 groups (tanks) of tadpoles
+- The task is to predict the percentage of tadpoles that survive to metamorphosis
+
+$$
+\begin{align*}
+S_i &\sim Binomial(D_i, p_i) \\
+logit(p_i) &= \alpha_{tank[i]} \\
+\alpha_{tank} &\sim Normal(\overline{a}, \sigma) \\
+\overline{a} &\sim Normal(0, 1.5) \\
+\end{align*}
+$$
+
+- the choice of $\sigma$ controls the amount of regularization
+- higher sigma means more regularization (more pooling) and lower sigma means less regularization (less pooling)
+- we can use cross validation to choose the best value of $\sigma$. 
+- In the lecture, RM uses PSIS to score the models. 
+
+### Learining $\sigma$ from the data
+
+- We don't need to use cv though, we can learn $\sigma$ as a parameter of the model
+
+
+```{r}
+library(rethinking)
+library(dplyr)
+data(reedfrogs)
+
+d <- reedfrogs |>
+    mutate(tank = row_number()) |>
+    tibble::as_tibble()
+
+m_complete <- ulam(
+    alist(
+        surv ~ binomial(density, p),
+        logit(p) <- a,
+        a ~ normal(0, 1.5)
+    ),
+    data = d, chains = 4, log_lik = TRUE
+)
+
+m_pool <- ulam(
+    alist(
+        surv ~ binomial(density, p),
+        logit(p) <- a[tank],
+        a[tank] ~ normal(0, 1.5)
+    ),
+    data = d, chains = 4, log_lik = TRUE
+)
+precis(m_pool, depth = 2)
+
+m_partial <- ulam(
+    alist(
+        surv ~ binomial(density, p),
+        logit(p) <- a[tank],
+        a[tank] ~ normal(a_bar, sigma),
+        a_bar ~ normal(0, 1.5),
+        sigma ~ exponential(1)
+    ),
+    data = d, chains = 4, log_lik = TRUE
+)
+
+plot(m_complete)
+plot(m_pool, depth = 2)
+plot(m_partial, depth = 2)
+
+compare(m_complete, m_pool, m_partial)
+```
+
+- The multilevel model performs better on WAIC, and has fewer effective parameters than the full pooling model. 
+- Adding params to multi-level models doesn't necessarily create overfitting, because the model is regularized by the population model.
+- We can add other predictors in the usual way
+
+
+```{r}
+d_pred <- d |>
+    mutate(
+        i_pred = pred == "pred"
+    )
+
+m_partial_pred <- ulam(
+    alist(
+        surv ~ binomial(density, p),
+        logit(p) <- a[tank] + b_pred * i_pred,
+        b_pred ~ normal(0, 0.5),
+        a[tank] ~ normal(a_bar, sigma),
+        a_bar ~ normal(0, 1.5),
+        sigma ~ exponential(1)
+    ),
+    data = d_pred, chains = 4, log_lik = TRUE
+)
+
+precis(m_partial_pred, depth = 2)
+```
+
+- RM calls these alphas 'varying effects', but they're also called 'random effects'
+
+### Superstitions
+
+- Varying effect models are plagued by superstition
+- people say 'units must be sampled at random', 'the number of units must be large', or 'the method assumes gaussian variation'. 
+- None of these are true. RM argues that VE / MM should be your default model, and you should only use complete pooling or no pooling if you have a good reason to do so.
+- Some practical difficulties arise when you have a large number of groups, or when you have a large number of parameters per group.
+
+### Random confounds
+
+- When unovserved group features influence individually varying causes
+- For example, when we have unobserved variation in traits which influence both the treatment and the outcome
+- What's the estimator? 
+  + Fixed effects: common and reasonable, but some drawbacks. FE is basically no pooling, which means that -- while we account for the confound -- we don't get the efficiency benefits of partial pooling. FE models also don't let us identify group-level effects. 
+  + Multi-level model: because of partial pooling, MM does a worse job of accounting for the confound, but it does allow us to identify group-level effects. Essentially, MM is a compromise between FE (no pooling) and complete pooling.
+  + Mundlak machine: uses group-level means as predictors for the individual-level parameters. 
+  + Full Luxury Bayes: use a generative model to model the confound. 

@@ -1,0 +1,105 @@
+
+```{python}
+import arviz as az
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import pymc as pm
+from scipy import stats
+from scipy.special import expit as logistic
+
+RANDOM_SEED = 8927
+np.random.seed(RANDOM_SEED)
+az.style.use("arviz-darkgrid")
+az.rcParams["stats.hdi_prob"] = 0.89
+az.rcParams["stats.ic_scale"] = "deviance"
+az.rcParams["stats.information_criterion"] = "waic"
+
+```
+
+## Data
+
+```{python}
+d = pd.read_parquet("reedfrogs.parquet")
+d = d.assign(tank = lambda x: x["tank"] - 1)
+d.head()
+d.pred.values
+```
+
+## Simple model
+
+```{python}
+with pm.Model() as m0:
+    a = pm.Normal("a", 0, 1.5, shape = d.shape[0])
+    p = pm.math.invlogit(a[d["tank"]])
+    S = pm.Binomial("S", n = d.density.values, p = p, observed = d.surv.values)
+    trace0 = pm.sample(1000, tune = 1000, random_seed = RANDOM_SEED)
+
+az.summary(trace0, round_to=2)
+```
+
+## Varying Effects
+
+```{python}
+with pm.Model() as m1: 
+    a_bar = pm.Normal("a_bar", 0.0, 1.5)
+    sigma = pm.Exponential("sigma", 1.0)
+    a = pm.Normal("a", a_bar, sigma, shape = d.shape[0])
+    p = pm.math.invlogit(a[d.tank.values])
+    S = pm.Binomial("S", n = d.density.values, p = p, observed = d.surv.values)
+    trace1 = pm.sample(1000, tune = 1000, random_seed = RANDOM_SEED)
+
+az.summary(trace1, round_to=2)
+```
+
+## Predation, Size
+
+```{python}
+d.pred.values
+d.tank.values
+d["size"]
+d = d.assign(
+    ipred = lambda x: [1 if p == "pred" else 0 for p in x.pred.values], 
+    isize = lambda x: [1 if s == "big" else 0 for s in x["size"].values]
+)
+d
+```
+
+```{python}
+ipred = d.ipred.values
+
+with pm.Model(coords = {"ipred": [0, 1], "obs_id": np.arange(d.shape[0])}) as m2t: 
+    ipred_idx = pm.Data("ipred_idx", ipred, dims = "obs_id")
+    a = pm.Normal("a", 0.0, 1.5, dims = "ipred")
+    theta = a[ipred_idx]
+    p = pm.math.invlogit(theta)
+    S = pm.Binomial("S", n = d.density.values, p = p, observed = d.surv.values)
+
+with m2t:
+    trace2t = pm.sample(1000, tune = 1000, random_seed = RANDOM_SEED)
+```
+
+## Model comparison
+
+```{python}
+az.plot_trace(trace0, var_names = ["a"], compact = True)
+az.plot_forest(trace0, var_names = ["a"], combined = True)
+```
+
+```{python}
+with m0: 
+    pm.compute_log_likelihood(trace0)
+
+with m1: 
+    pm.compute_log_likelihood(trace1)
+
+az.compare({"m0": trace0, "m1": trace1}, ic = "waic", scale = "deviance")
+```
+
+```{python}
+
+```
+
+
+
+

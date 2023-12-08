@@ -1,0 +1,97 @@
+---
+title: "reactable"
+format: html
+---
+
+
+```{r}
+library(reactable)
+
+data(penguins, package = "palmerpenguins")
+
+```
+
+## Basic Table
+```{r}
+reactable(penguins)
+```
+
+
+## Expandable Groups
+```{r}
+penguins |>
+    dplyr::select(
+        island,
+        species,
+        body_mass_g,
+        bill_length_mm
+    ) |>
+    reactable(
+        groupBy = "island", 
+        columns = list(
+            species = colDef(aggregate = "frequency"),
+            body_mass_g = colDef(aggregate = "mean", format = colFormat(digits = 1)), 
+            bill_length_mm = colDef(aggregate = "max")
+        )
+    )
+```
+
+## Custom Aggregation
+
+```{r}
+penguins |>
+    dplyr::select(
+        species, 
+        bill_length_mm
+    ) |>
+    reactable(
+        groupBy = "species", 
+        columns = list(
+            bill_length_mm = colDef(
+                aggregate = JS(
+                    "function(values, rows) {
+                        let min = 1000;
+                        let max = 0;
+                        rows.forEach(function(row) {
+                            if (row['bill_length_mm'] > max) {
+                                max = row['bill_length_mm'];
+                            } else if (row['bill_length_mm']) {
+                                min = row['bill_length_mm'];
+                            }
+                        })
+                        return(`${min} - ${max}`)
+                    }"
+                )
+            )
+        )
+    )
+```
+
+## Column Decorations
+
+```{r}
+library(reactablefmtr)
+
+d <- penguins |>
+    dplyr::filter(complete.cases(penguins)) |>
+    dplyr::select(species, sex, island, body_mass_g) |>
+    dplyr::group_by(species, island, sex) |>
+    dplyr::mutate(
+        body_mass_scaled = (body_mass_g
+            - mean(body_mass_g, na.rm = TRUE))
+            / sd(body_mass_g, na.rm = TRUE) 
+        )
+
+d |>
+    dplyr::ungroup() |>
+    reactable(
+        columns = list(
+            body_mass_scaled = colDef(
+                format = colFormat(digits = 2),
+                style = color_scales(d)
+            )
+        ), 
+        theme = fivethirtyeight()
+    )
+
+```

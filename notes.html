@@ -1,0 +1,1248 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.1.251">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="TM">
+
+<title>Statistical Rethinking Course Notes</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="notes_files/libs/clipboard/clipboard.min.js"></script>
+<script src="notes_files/libs/quarto-html/quarto.js"></script>
+<script src="notes_files/libs/quarto-html/popper.min.js"></script>
+<script src="notes_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="notes_files/libs/quarto-html/anchor.min.js"></script>
+<link href="notes_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="notes_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="notes_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="notes_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="notes_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script src="notes_files/libs/quarto-diagram/mermaid.min.js"></script>
+<script src="notes_files/libs/quarto-diagram/mermaid-init.js"></script>
+<link href="notes_files/libs/quarto-diagram/mermaid.css" rel="stylesheet">
+
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Statistical Rethinking Course Notes</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>TM </p>
+          </div>
+  </div>
+    
+    
+  </div>
+  
+
+</header>
+
+<p>Though I’ve covered much of this material previously in Krushke’s book, I need to reinforce and harden my knowledge base if I am to help in the fight against the frequentist hegemony. I’m reading this book, which is intentionally structured sequentially as a course, on Alex’s recommendation. This file contains notes on the material, structured analogously to the book, which unfolds over 17 chapters!</p>
+<section id="sections" class="level2">
+<h2 class="anchored" data-anchor-id="sections">Sections</h2>
+<p>Each section begins with …, contains …, and ends with … .</p>
+</section>
+<section id="setup" class="level2">
+<h2 class="anchored" data-anchor-id="setup">Setup</h2>
+<ol type="1">
+<li><em>Install stan, rstan, cmdstanr</em> kind of a pain. CRAN version of <code>rstan</code> is incompatible with the latest version of R, god knows why. RTools is needed to build source packages. Visit <a href="mc-stan.org">stan homepage</a> for instructions.</li>
+<li><em>Install rethinking</em> also weirdly a pain. The rethinking dependencies are a tad sloppily defined, so there are a couple classic “You need new processx, can’t install processx” loops</li>
+</ol>
+</section>
+<section id="external-reference-material" class="level2">
+<h2 class="anchored" data-anchor-id="external-reference-material">External Reference Material</h2>
+<p><a href="https://mc-stan.org/docs/2_31/stan-users-guide-2_31.pdf">Stan User Manual</a></p>
+</section>
+<section id="unit-01-introduction" class="level1">
+<h1>Unit 01: Introduction</h1>
+<div class="callout-note callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Questions about Unit 01
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ol type="1">
+<li>How do we decide what goes in the DAG?</li>
+<li>How is the degree of uncertainty mathematically represented in the Beta distribution?</li>
+</ol>
+</div>
+</div>
+<p>This unit begins with Mcelreath’s perspective on the correct direction of the relationship between research and stats. In his model – fully reflected in the course – research precedes data and data analysis. Statistical models are ‘Golems’, powerful but stupid automata. Animated by sensible and carefully specified goals, they contribute to the progress toward truth. Given careless or vague instructions, however, they are liable to do meaningful damage, much like the chapter one’s titular ‘Golem of Prague’.</p>
+<p>He then demonstrates the fundamentals of the Bayesian approach by working through the problem of estimating the proportion of the earth’s surface covered in water using a randomly generated sample of points. This example clearly distinguishes <em>Rethinking</em> from the other stats courses I’ve taken, which have all begun with frequentist staples like drawing a coloured ball from a bag, or flipping a coin whose fairness is in question. While the globe example is trivial (we already know the answer) its form is much more portable to other more meaningful research questions.</p>
+<section id="lecture-01-research-before-data" class="level2">
+<h2 class="anchored" data-anchor-id="lecture-01-research-before-data">Lecture 01: Research Before Data</h2>
+<ul>
+<li>we’re not interested in fussing with statistical models for their own sake</li>
+<li>we want to use them to answer scientific questions about the world we inhabit</li>
+<li>the course follows that intention, connecting each method to applied research</li>
+<li>these videos make revisions to the content of the course, which will ultimately be reflected in a third editions of the book</li>
+<li>we’re not going to talk about the conflict between Bayesian and Frequentist stats</li>
+<li>Instead, we’re going to focus on providing the best strategies for <em>causal inference</em></li>
+</ul>
+<section id="on-causal-inference" class="level3">
+<h3 class="anchored" data-anchor-id="on-causal-inference">On Causal Inference</h3>
+<ul>
+<li>prediction of the causes of an intervention</li>
+<li>cannot be analyzed without a causal model</li>
+<li>causal imputation means that you’re constructing unobserved counterfactual observations given a causal model</li>
+<li>intimately related to description and design</li>
+<li>even when the goal is <em>descriptive</em>, you need a causal model</li>
+<li>the sample is caused by things. it differs from the population, and if your goal is to describe it, you need to model the causes of those differences.</li>
+</ul>
+</section>
+<section id="dags" class="level3">
+<h3 class="anchored" data-anchor-id="dags">DAGs</h3>
+<ul>
+<li>DAG stands for Directed Acyclic Graph</li>
+<li>They are used to represent heuristic causal models</li>
+<li>analyzing our causal DAGs helps to identify necessary statistical models</li>
+<li>Get the researcher’s head out of data and into science</li>
+<li>DAGs can be correct or incorrect</li>
+</ul>
+</section>
+<section id="golems" class="level3">
+<h3 class="anchored" data-anchor-id="golems">Golems</h3>
+<ul>
+<li>using the classic stats flowchart for picking a test is very limiting, and creates incorrect and dangerous ideas about what they can do</li>
+<li>Gosset (Student, of T test) invented the test to do quality control on Guinness</li>
+<li>null models are rarely unique, and therefore rarely useful or sensible</li>
+<li>clearly inadequate in identifying the mechanisms of evolution</li>
+<li>for most scientific problems, we want to consider multiple alternative causal models</li>
+<li>we need golems to do more, make generative causal models, stats models justified by generative models and questions, an effective way to produce estimates</li>
+<li>must be careful with controls</li>
+<li>Bayes is practical, not philosophical. It allows scientists to account for measurement error, missing data, latent factors, etc.</li>
+</ul>
+</section>
+<section id="owls" class="level3">
+<h3 class="anchored" data-anchor-id="owls">Owls</h3>
+<ul>
+<li>circles to owl unclear, as metaphor for general statistical pedagogy</li>
+<li>this course goes more slowly, but it’s more successful</li>
+<li>we’re going to have a specific general workflow</li>
+<li>scientific data analysis requires software engineering, but the current state of it is largely amateur</li>
+<li>theory, model, evidence loop</li>
+</ul>
+</section>
+</section>
+<section id="chapter-01-the-golem-of-prague" class="level2">
+<h2 class="anchored" data-anchor-id="chapter-01-the-golem-of-prague">Chapter 01: The Golem of Prague</h2>
+<p>This chapter gives us a fairly traditional introduction to the concept of the statistical model. It emphasizes the insufficiency of any statistical approach and the need for careful and thorough understanding. Much more than <em>Fallacy</em>, <em>Rethinking</em> justifies its Bayesian focus with intuition and usefulness. It seems that Mcelreath and Clayton disagree about the extent to which Bayesian methods can mitigate the risk of overfitting. A possible explanation, Clayton puts much more emphasis on the power of informed priors to ignore trivial features, while Mcelreath seems to simply find the <em>results</em> of Bayesian models better to explain and work with.</p>
+<p>The chapter ends with an overview of the content in the remaining 16 chapters, which is preceded by a meditation on causality. Mcelreath frames the problem by dividing scientists into three camps of dummies that I’d give the following names: observationists, for whom causality is impossible to assign and therefore useless to study; strict counterfactualists, who cannot accept a statistical argument for causality except under the conditions of a classical randomized controlled trial; and causal saladites, who toss control variables into a model willy nilly, observe the results, and then tell a story about causality. He suggests that the saladites predominate, but that each camp is obviously sily. Given his druthers, he would replace the causal salad with a causal model (DAG) and the statistical models it asks for. His approach promises to permit more relaxed data generating conditions than the counterfactualists, but not to abandon coherence or sensibility on that count, as the saladites do.</p>
+<ul>
+<li>Prague hosted the seat of the holy roman emperor in the 1500s</li>
+<li>It was also the site of the invention of one of the earliest robots, the “Golem of Prague”</li>
+<li>A golem is a clay robot from Jewish folklore</li>
+<li>It is powerful, so it can be dangerous</li>
+<li>Analogous in vibe to a faustian bargain</li>
+<li>Scientific models are golems</li>
+<li>Of specific concern to this book, statistical procedures and tests are golems</li>
+<li>These golems are powerful, but ‘inflexible and fragile’</li>
+<li>Most researchers and students who use them don’t grasp the underlying unity or logic of the complex array that has emerged</li>
+<li>We need to foreground that underlying unity by teaching statistical inference as a set of strategies, rather than as a collection of purpose-built and otherwise unrelated tools</li>
+<li>The tacit belief among students and academics that the sole aim of statistics is to test and falsify null hypotheses is a problem.</li>
+<li>Karl Popper is mentioned as “possibly the most influential philosopher of science”</li>
+<li>Mcelreath argues that the narrow constraint of stats to falsifying the null misreads Popper, who, he says, felt simply that hypotheses should be <em>falsifiable</em>, not that falsification is the only thing scientists should do.</li>
+<li>Deductive falsification is impossible in nearly every scientific context, science demands more than stats, and so the stats we use should not pretend to stand on their own.</li>
+<li>Hypotheses are not models and models are not hypotheses</li>
+<li>Delineation between statistical model, process model (?), hypothesis</li>
+<li>Process models contextualize statistical models</li>
+<li>Statistical models depend on hypotheses</li>
+<li>Falsification is always consensual, rather than strictly logical</li>
+<li>This book intends to teach its reader how to engineer and troubleshoot statistical golems, the Bayesian way</li>
+<li>frequentism is framed as a’special case’ of bayesian models, with different abstractions that motivate and justify it</li>
+<li>many scientists interpret non-bayesian results in bayesian terms (e.g.&nbsp;mistaking p-0values for bayesian posteriors)]</li>
+<li>Laplace -&gt; Jeffreys -&gt; Cox -&gt; Jaynes is presented as this book’s intellectual lineage, in line with <em>Fallacy</em></li>
+<li>Alternatives to Bayesian inference or analytical approximations remain useful because of the computational cost of Bayesian modelling</li>
+<li>Discussion of overfitting, cross-validation, information criteria, alongside the value of testing models for predictive accuracy</li>
+<li>A parameter can be usefully regarded as a missing model</li>
+<li>Multilevel Models are turtles the whole way down. They can help with overfitting because they do partial pooling.</li>
+<li>MLM’s should be the default form of regression, since many (maybe most?) processes are hierarchical and since they are a more general case</li>
+<li>Tukey used MLMs to forecast elections in the 1960s</li>
+<li>This is where Alex’s love of DAGs comes from.</li>
+<li>The DAG is a simple type of a Graphical Causal Model (GCM)</li>
+<li>Causal inference demands a causal model that is separate from the statistical model</li>
+<li>The causal DAG asks for one or more statistical models</li>
+<li>The approach that dominates in many parts of biology and the social sciences is a “Causal Salad”, where ‘control’ variables (vegetables) are tossed into a statistical model (bowl), changes to the estimates are observed, and a story about causation follows.</li>
+<li>This is incorrect, as the glib name would hint.</li>
+</ul>
+</section>
+<section id="lecture-02-the-garden-of-forking-data" class="level2">
+<h2 class="anchored" data-anchor-id="lecture-02-the-garden-of-forking-data">Lecture 02: The Garden of Forking Data</h2>
+<ul>
+<li>ex-post notes</li>
+<li>The probability of something specific happening is the number of ways it can happen as a proportion of the number of ways any specific thing could happen</li>
+<li>Toss the globe, pick a point, it’s water or land, do it again, what could the true proportion be?</li>
+<li>nice animated illustration of Bayesian updating</li>
+</ul>
+</section>
+<section id="chapter-02-small-worlds-and-large-worlds" class="level2">
+<h2 class="anchored" data-anchor-id="chapter-02-small-worlds-and-large-worlds">Chapter 02: Small Worlds and Large Worlds</h2>
+<div class="callout-hint callout callout-style-default no-icon callout-captioned">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Key Terms
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A <strong>PARAMETER</strong> is a conjectured value about which we’re interested in learning. In the globe example, it is <em>p</em>, the proportion of the globe covered in water.</p>
+<p>The relative number of ways that a value <em>p</em> can produce the data is called a <strong>LIKELIHOOD</strong>.</p>
+<p>Every time you <strong>UPDATE</strong> your understanding with data, you start with a <strong>PRIOR PROBABILITY</strong> and finish with a <strong>POSTERIOR PROBABILITY</strong>.</p>
+</div>
+</div>
+<ul>
+<li>Columbus guessed wrong. He thought the world was much smaller than it actually was (and is)</li>
+<li>In RM’s framing, the small world is the theoretical one we construct in our modelling endeavours, while the large one is the real one.</li>
+<li>From the bag to the dice to the continuous possibility space of the globe</li>
+<li>Bayesian and frequentist stats share in common the fundamental importance of likelihood, Bayes’ theorem just lets us do more with it</li>
+</ul>
+<p><span class="math display">\[
+Posterior = \frac{Probability \ of \ the \ Data \times Prior}{Average \ probability of the data}
+\]</span></p>
+<ul>
+<li>In this update formula, the role of the denominator is just to normalize the relative likelihoods given by the numerator, such that the probability distribution follows our expectations with respect to probability (it sums or integrates to 1)</li>
+<li>To calculate that term, we need to figure out the indefinite integral of the distributions that comprise our generative model</li>
+<li>This figuring quickly becomes intractable as complexity increases, but simulation gives us a handy and accurate approximation without the analytical calculus</li>
+<li>Grid approximation, quadratic approximation, and MCMC are the alternatives covered in the book</li>
+</ul>
+<section id="grid-approximation" class="level3">
+<h3 class="anchored" data-anchor-id="grid-approximation">Grid Approximation</h3>
+<ol type="1">
+<li>define the grid, or the number of points to use in estimating the posterior, then make a list of hte parameter values in the grid</li>
+<li>compute the value of the prior at each parameter value on the grid</li>
+<li>Compute the likelihood at each parameter value</li>
+<li>compute the unstandardized posterior at each parameter value, by multiplying the parameter by the likelihood</li>
+<li>standardize the posterior, by dividing each value by the sum of all values</li>
+</ol>
+</section>
+</section>
+</section>
+<section id="unit-2" class="level1">
+<h1>Unit 2</h1>
+<section id="lecture-3-geocentric-models" class="level2">
+<h2 class="anchored" data-anchor-id="lecture-3-geocentric-models">Lecture 3: Geocentric models</h2>
+<ul>
+<li>planets are wanderers, zig-zagging through the sky</li>
+<li>the geocentric model is predictively accurate but wrong</li>
+<li>ptolemy and other ancient astronomers were able to make very accurate models</li>
+<li>the point is that stat mods can make highly accurate predictions, but cannot on their own explain complex systems</li>
+<li>piazzi observed a new comet, which he lost, and which could not be found with predictions from the geocentric models</li>
+<li>It turns out that comet was ceres, a dwarf planet between mars and jupiter</li>
+<li>Gauss figured out that it was on a different orbital plane</li>
+<li>Linear Regression is really powerful, but it helps to keep it conceptually separate from structural / causal models</li>
+<li>Gaussian distribution illustrated with people standing in a field, flipping coins and moving closer to and further away from the halfway line</li>
+<li>If our goal is to estimate the mean and variance of a variable, the normal is the least informative (maximum entropy) distribution to use</li>
+<li>A variable does not have to be empirically normally distributed in order to use the normal error model</li>
+</ul>
+<div class="callout-note callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Goals for this lecture
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ol type="1">
+<li>Language for representing models</li>
+<li>calculate posterior distributions with multiple unknowns</li>
+<li>Build linear models</li>
+</ol>
+<p>Don’t have to understand them all at once, just have to feel some flow. if you get stuck, back up and watch previous lectures.</p>
+</div>
+</div>
+<ul>
+<li>Owl drawing workflow: question, assumptions, generative model, estimator</li>
+</ul>
+<section id="linear-regression" class="level3">
+<h3 class="anchored" data-anchor-id="linear-regression">Linear Regression</h3>
+<ul>
+<li>use rethinking dataset <code>Howell1</code> to model relationship between adult weight and height</li>
+<li>Step 1 (question): How does height influence weight?</li>
+<li>Step 2 (scientific model): Weight is some function of height and other, unobserved factors</li>
+<li>Step 3 (generative model): <span class="math inline">\(W = \Beta H + U\)</span></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>sim_weight <span class="ot">&lt;-</span> <span class="cf">function</span>(height, beta_height, sd) {</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    n <span class="ot">&lt;-</span> <span class="fu">length</span>(height)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    error <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n, <span class="dv">0</span>, sd)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    weight <span class="ot">&lt;-</span> beta_height <span class="sc">*</span> height <span class="sc">+</span> error</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">height =</span> <span class="fu">runif</span>(<span class="dv">200</span>, <span class="at">min =</span> <span class="dv">130</span>, <span class="at">max =</span> <span class="dv">170</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>        <span class="at">weight =</span> <span class="fu">sim_weight</span>(height, <span class="fl">0.5</span>, <span class="dv">5</span>)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>dat <span class="sc">|&gt;</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggplot</span>(<span class="fu">aes</span>(height, weight)) <span class="sc">+</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_point</span>(<span class="at">shape =</span> <span class="dv">21</span>, <span class="at">size =</span> <span class="dv">4</span>, <span class="at">stroke =</span> <span class="dv">1</span>, <span class="at">color =</span> <span class="st">"tomato"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="notes_files/figure-html/unnamed-chunk-1-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="callout-tip callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Describing our model
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Standard statistical notation describes models in terms of their variables</p>
+<p><span class="math display">\[
+W_i = \beta H_i + U_i
+U_i ~ Normal(0, \sigma)
+H_i ~ Uniform(130, 170)
+\]</span></p>
+<p>this notation reverses the order in the code, where the random info is generated first</p>
+</div>
+</div>
+<ul>
+<li>Step 4 (developing an estimator): how aveerage weight changes with height
+<ul>
+<li><span class="math inline">\(E(W_i | H_i) = \alpha + \beta H_i + \epsilon\)</span></li>
+<li>Posterior probability of a specific line is the number of ways the data could have been produced, tiems the prior, all divided by the normalizing constant, which we’re not paying much attn to here.</li>
+<li>$W_i ~ Normal(_i, )</li>
+</ul></li>
+<li>Step 5 (estimate the posterior): shows cool grid approximation charts</li>
+<li>posterior distribution if full of lines, which converge to a smaller and smaller range as the number of smaples increases</li>
+<li>We’re going to use quadratic approximation in the rest of the course</li>
+</ul>
+<div class="callout-note callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Constructing Priors
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li>Priors should express scientific knowledge, but <em>softly</em></li>
+<li>In our case, we say:
+<ul>
+<li><span class="math inline">\(\alpha ~ Normal(0, 10) \to\)</span> when height is zero, weight is also</li>
+<li><span class="math inline">\(\beta ~ Uniform(0, 1) \to\)</span> weight increases (on avg) with height, weight is less than height</li>
+<li><span class="math inline">\(\sigma ~ Uniform(0, 10) \to\)</span> sigma must be positive</li>
+</ul></li>
+<li>Priors not the most important part of Bayesian analysis</li>
+</ul>
+</div>
+</div>
+<ul>
+<li>Step 6: validate the model
+<ul>
+<li>run the model on synthetic data, whose parameters are known!</li>
+</ul></li>
+<li>Step 7: analyze the data
+<ul>
+<li>run the validated model on the actual data</li>
+</ul></li>
+<li>No one true line in Bayesian inference</li>
+<li>Can simulate observations using param distributions</li>
+<li>models are like thermometers,</li>
+</ul>
+</section>
+</section>
+<section id="lecture-04-categories-and-curves" class="level2">
+<h2 class="anchored" data-anchor-id="lecture-04-categories-and-curves">Lecture 04: Categories and Curves</h2>
+<ul>
+<li>geocentric model is wrong but successful</li>
+<li>linear models can similarly be used to esimate non-linear processes</li>
+<li>the new element here is that we will be using multiple estimands, which means multiple estimators</li>
+<li>we also want an estimate that isn’t going to show up in a summary table, so we need to post-process them</li>
+<li>categories are discrete (indicator and index variables)</li>
+<li>curves are continuous</li>
+</ul>
+<section id="categories" class="level3">
+<h3 class="anchored" data-anchor-id="categories">Categories</h3>
+<ul>
+<li>we want to stratify by category</li>
+<li>in <code>Howell1</code>, sex can be thought of as a binary category</li>
+<li>How do we justify the causal model? we have to think about the directionality of the relationship theoretically.</li>
+<li>In this case, we consider the relationship between sex and height, and sex and weight</li>
+<li>Sex influences weight directly and also indirectly</li>
+<li>Unobserved causes and variance are both implicitly included in the graph</li>
+<li>they don’t need to be included, except when they are related to observed features</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>sim_height_and_weight <span class="ot">&lt;-</span> <span class="cf">function</span>(sex, <span class="at">beta_height =</span> <span class="fu">c</span>(<span class="at">m =</span> <span class="fl">0.5</span>, <span class="at">f =</span> <span class="fl">0.6</span>), <span class="at">alpha =</span> <span class="fu">c</span>(<span class="at">m =</span> <span class="dv">0</span>, <span class="at">f =</span> <span class="dv">0</span>)) {</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    n <span class="ot">&lt;-</span> <span class="fu">length</span>(sex)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    height <span class="ot">&lt;-</span> <span class="dv">150</span> <span class="sc">+</span> <span class="dv">10</span> <span class="sc">*</span> (sex <span class="sc">==</span> <span class="st">"m"</span>) <span class="sc">+</span> <span class="fu">rnorm</span>(n, <span class="dv">0</span>, <span class="dv">5</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    weight <span class="ot">&lt;-</span> alpha[sex] <span class="sc">+</span> height <span class="sc">*</span> beta_height[sex] <span class="sc">+</span> <span class="fu">rnorm</span>(n, <span class="dv">0</span>, <span class="dv">5</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">tibble</span>(<span class="at">sex =</span> sex, <span class="at">height =</span> height, <span class="at">weight =</span> weight)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>sim_sex <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="fu">c</span>(<span class="st">"m"</span>, <span class="st">"f"</span>), <span class="dv">1000</span>, <span class="at">replace =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">&lt;-</span> <span class="fu">sim_height_and_weight</span>(</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">sex =</span> sim_sex,</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">beta_height =</span> <span class="fu">c</span>(<span class="at">m =</span> <span class="fl">0.5</span>, <span class="at">f =</span> <span class="fl">0.6</span>),</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">alpha =</span> <span class="fu">c</span>(<span class="at">m =</span> <span class="dv">0</span>, <span class="at">f =</span> <span class="dv">0</span>)</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>dat <span class="sc">|&gt;</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggplot</span>(<span class="fu">aes</span>(height, weight)) <span class="sc">+</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">color =</span> sex), <span class="at">size =</span> <span class="dv">3</span>, <span class="at">shape =</span> <span class="dv">21</span>, <span class="at">stroke =</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="notes_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<ul>
+<li>we need to stratify by sex</li>
+<li>we’re going to use index variables (e.g.&nbsp;<code>[1=f, 2=m]</code>) instead of indicator varriables. They extend to many categories with no change in code</li>
+<li>they’re better for specifying priors, and more intuitive to code</li>
+<li>We assign each index a different distribution</li>
+<li>We describe the differences between categories using the whole posterior distributions</li>
+<li>In this way, we obtain a posterior difference, posterior predictive distribution for the <em>contrast</em></li>
+<li>It is never appropriate to compare the posterior distributions themselves, you need to sample, compare, and analyze the distribution of differences.</li>
+<li>about 82% of men are heavier than women</li>
+<li>RM prefers the term ‘block’ to ‘control’. In this case, we are ‘blocking’ the association of sex on height, and then generating data.</li>
+</ul>
+</section>
+<section id="index-variables-and-lines" class="level3">
+<h3 class="anchored" data-anchor-id="index-variables-and-lines">Index Variables and Lines</h3>
+<p><span class="math display">\[
+W_i ~ Normal(u_i, \sigma)
+u_i = \alpha + \beta_{s[i]} (H_i - \bar{H})
+\]</span></p>
+<ul>
+<li>Centering H makes it so that alpha is the average weight of a person with average height</li>
+<li>It makes the intercept more sensible. Why anchor at zero? It’s arbitrary, especially in the face of no zero height / zero weight persons</li>
+</ul>
+</section>
+<section id="curves-from-lines" class="level3">
+<h3 class="anchored" data-anchor-id="curves-from-lines">Curves from lines</h3>
+<ul>
+<li>HTe relationship between height and weight is nonlinear in children</li>
+<li>You can use polynomials, but you shouldn’t. That’s bad. Never do it</li>
+<li>You can use splines, a species of generalized additive model, to fit flexible lines</li>
+<li>polynomials create strange symmetries and “explosive uncertainty at edges”</li>
+<li>No local smoothing, only global smoothing.</li>
+<li>Any data point can change the estimator any distance from it.</li>
+<li>They learn too much from the data in regions that are far away</li>
+<li>better to log transform the dependent <span class="math inline">\(W\)</span></li>
+<li>Basis splines (B-splines) are built from the addition of many locally trained functions</li>
+</ul>
+</section>
+<section id="height-as-a-function-of-age" class="level3">
+<h3 class="anchored" data-anchor-id="height-as-a-function-of-age">Height as a function of age</h3>
+<ul>
+<li>IRL, we would rely on bio consensus around this relationship</li>
+<li>It’s weird to say age is a cause, but we’re doing it</li>
+<li>The spline ends up with a reasonable interpolation of the relationship</li>
+</ul>
+</section>
+<section id="full-luxury-bayes" class="level3">
+<h3 class="anchored" data-anchor-id="full-luxury-bayes">Full luxury Bayes</h3>
+<ul>
+<li>introduction to multi-level modelling</li>
+<li>more simulation, fewer models</li>
+<li><span class="math inline">\(p(W|do(S))\)</span></li>
+</ul>
+</section>
+</section>
+<section id="questions" class="level2">
+<h2 class="anchored" data-anchor-id="questions">Questions</h2>
+<ul>
+<li>How is he making these animations? how could we use animation to communicate uncertainty in presentations?</li>
+<li>RM discusses the idea of skill development as a feeling of flow. Are you feeling the flow?</li>
+<li>How to use quap without the rethinking package?</li>
+<li>Struggling to install the <code>rethinking</code> package. How?</li>
+</ul>
+</section>
+<section id="homework" class="level2">
+<h2 class="anchored" data-anchor-id="homework">Homework</h2>
+<p>Considering only the people in <code>howell</code> 12 or younger, estimate the causal association between age and weight. Assume age influences weight directly, by way of muscle growth and proportions, as well as indirectly, by way of its effect on height.</p>
+<section id="a.-draw-the-dag" class="level3">
+<h3 class="anchored" data-anchor-id="a.-draw-the-dag">1.A. Draw the DAG</h3>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<p>
+</p><pre class="mermaid" data-tooltip-selector="#mermaid-tooltip-1">flowchart TD
+    A[Age]
+    H[Height]
+    W[Weight]
+    A --&gt; H
+    A --&gt; W
+    H --&gt; W
+</pre>
+<div id="mermaid-tooltip-1" class="mermaidTooltip">
+
+</div>
+<p></p>
+</div>
+</div>
+</div>
+</section>
+<section id="b.-program-a-generative-simulation" class="level3">
+<h3 class="anchored" data-anchor-id="b.-program-a-generative-simulation">1.B. Program a Generative Simulation</h3>
+<p>Our naive generative simulation, with the actual data overlaid for comparison</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggbeeswarm)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>howell <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(<span class="st">"R/unit-02/howell.rds"</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>howell_youth <span class="ot">&lt;-</span> howell <span class="sc">|&gt;</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(age <span class="sc">&lt;</span> <span class="dv">13</span>)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>sim_youth_from_age <span class="ot">&lt;-</span> <span class="cf">function</span>(</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    age,</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">height_b_age =</span> <span class="dv">10</span>,</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">weight_b_age =</span> <span class="dv">3</span>,</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">weight_b_height =</span> <span class="fl">0.5</span>,</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">alpha_height =</span> <span class="dv">24</span>,</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">alpha_weight =</span> <span class="dv">4</span>) {</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    n <span class="ot">&lt;-</span> <span class="fu">length</span>(age)</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    height <span class="ot">&lt;-</span> alpha_height <span class="sc">+</span> age <span class="sc">*</span> height_b_age <span class="sc">+</span> <span class="fu">rnorm</span>(n, <span class="dv">0</span>, <span class="dv">5</span>)</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    weight <span class="ot">&lt;-</span> alpha_weight <span class="sc">+</span> height <span class="sc">*</span> weight_b_height <span class="sc">+</span> age <span class="sc">*</span> weight_b_age <span class="sc">+</span> <span class="fu">rnorm</span>(n, <span class="dv">0</span>, <span class="dv">5</span>)</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    tibble<span class="sc">::</span><span class="fu">tibble</span>(<span class="at">age =</span> age, <span class="at">height =</span> height, <span class="at">weight =</span> weight)</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>age <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">12</span>, <span class="dv">1000</span>, <span class="at">replace =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>dat_sim <span class="ot">&lt;-</span> <span class="fu">sim_youth_from_age</span>(age, <span class="at">height_b_age =</span> <span class="dv">2</span>, <span class="at">weight_b_age =</span> <span class="dv">1</span>, <span class="at">alpha_height =</span> <span class="dv">10</span>)</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>dat_sim <span class="sc">|&gt;</span></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggplot</span>(<span class="fu">aes</span>(age, weight)) <span class="sc">+</span></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_beeswarm</span>(<span class="at">shape =</span> <span class="dv">21</span>, <span class="at">size =</span> <span class="dv">3</span>, <span class="at">color =</span> <span class="st">"#0000FF"</span>) <span class="sc">+</span></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_point</span>(<span class="at">data =</span> howell_youth, <span class="at">shape =</span> <span class="dv">21</span>, <span class="at">size =</span> <span class="dv">3</span>, <span class="at">color =</span> <span class="st">"tomato"</span>, <span class="at">fill =</span> <span class="st">"white"</span>) <span class="sc">+</span></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="notes_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="estimate-the-total-causal-effect-of-each-year-on-weight" class="level3">
+<h3 class="anchored" data-anchor-id="estimate-the-total-causal-effect-of-each-year-on-weight">2. Estimate the total causal effect of each year on weight</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(brms)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: Rcpp</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading 'brms' package (version 2.19.0). Useful instructions
+can be found by typing help('brms'). A more detailed introduction
+to the package is available through vignette('brms_overview').</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'brms'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:stats':
+
+    ar</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>howell_youth_normed <span class="ot">&lt;-</span> howell_youth <span class="sc">|&gt;</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">height_c =</span> height <span class="sc">-</span> <span class="fu">mean</span>(height),</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">weight_c =</span> weight <span class="sc">-</span> <span class="fu">mean</span>(weight)</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>m_youth_0 <span class="ot">&lt;-</span> <span class="fu">brm</span>(</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> howell_youth_normed,</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    weight_c <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> height_c,</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">prior =</span> <span class="fu">c</span>(</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>        <span class="fu">prior</span>(<span class="fu">normal</span>(<span class="dv">0</span>, <span class="dv">10</span>), <span class="at">class =</span> Intercept),</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>        <span class="fu">prior</span>(<span class="fu">normal</span>(<span class="dv">2</span>, <span class="dv">5</span>), <span class="at">class =</span> b),</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>        <span class="fu">prior</span>(<span class="fu">uniform</span>(<span class="dv">0</span>, <span class="dv">50</span>), <span class="at">class =</span> sigma, <span class="at">ub =</span> <span class="dv">50</span>)</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">iter =</span> <span class="dv">2000</span>, <span class="at">warmup =</span> <span class="dv">1000</span>, <span class="at">chains =</span> <span class="dv">4</span>, <span class="at">cores =</span> <span class="dv">4</span>, <span class="at">seed =</span> <span class="dv">4</span>,</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">file =</span> <span class="st">"R/unit-02/fits/m_youth_0"</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>m_youth_1 <span class="ot">&lt;-</span> <span class="fu">brm</span>(</span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> howell_youth_normed,</span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">bf</span>(</span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>        weight <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> age</span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">prior =</span> <span class="fu">c</span>(</span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>        <span class="fu">prior</span>(<span class="fu">normal</span>(<span class="dv">0</span>, <span class="dv">10</span>), <span class="at">class =</span> Intercept),</span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>        <span class="fu">prior</span>(<span class="fu">normal</span>(.<span class="dv">1</span>, <span class="dv">2</span>), <span class="at">class =</span> b, <span class="at">lb =</span> <span class="dv">0</span>),</span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>        <span class="fu">prior</span>(<span class="fu">uniform</span>(<span class="dv">0</span>, <span class="dv">50</span>), <span class="at">class =</span> sigma, <span class="at">ub =</span> <span class="dv">50</span>)</span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>    ), <span class="at">iter =</span> <span class="dv">2000</span>, <span class="at">warmup =</span> <span class="dv">1000</span>, <span class="at">chains =</span> <span class="dv">4</span>, <span class="at">cores =</span> <span class="dv">4</span>, <span class="at">seed =</span> <span class="dv">4</span>,</span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">file =</span> <span class="st">"R/unit-02/fits/m_youth_1"</span></span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a><span class="fu">pairs</span>(m_youth_1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="notes_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(m_youth_1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Parts of the model have not converged (some Rhats are &gt; 1.05). Be
+careful when analysing the results! We recommend running more iterations and/or
+setting stronger priors.</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code> Family: gaussian 
+  Links: mu = identity; sigma = identity 
+Formula: weight ~ 1 + age 
+   Data: howell_youth_normed (Number of observations: 146) 
+  Draws: 4 chains, each with iter = 100; warmup = 50; thin = 1;
+         total post-warmup draws = 200
+
+Population-Level Effects: 
+          Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+Intercept     7.43      0.39     6.70     8.12 1.06      192      155
+age           1.34      0.06     1.22     1.46 1.03      424      123
+
+Family Specific Parameters: 
+      Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+sigma     2.57      0.16     2.31     2.90 1.02      210      132
+
+Draws were sampled using sampling(NUTS). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
+</div>
+</div>
+</section>
+<section id="add-sex" class="level3">
+<h3 class="anchored" data-anchor-id="add-sex">3. Add sex</h3>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<p>
+</p><pre class="mermaid" data-tooltip-selector="#mermaid-tooltip-2">flowchart TD
+    A[Age]
+    H[Height]
+    W[Weight]
+    S[Sex]
+    A --&gt; H
+    A --&gt; W
+    H --&gt; W
+    S --&gt; H
+    S --&gt; W
+</pre>
+<div id="mermaid-tooltip-2" class="mermaidTooltip">
+
+</div>
+<p></p>
+</div>
+</div>
+</div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rethinking)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>howell_youth_normed <span class="ot">&lt;-</span> howell_youth_normed <span class="sc">|&gt;</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">sex =</span> male <span class="sc">+</span> <span class="dv">1</span>)</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>m_youth_2 <span class="ot">&lt;-</span> <span class="fu">quap</span>(</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">alist</span>(</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>        weight <span class="sc">~</span> <span class="fu">dnorm</span>(mu, sigma),</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>        mu <span class="ot">&lt;-</span> a[sex] <span class="sc">+</span> b[sex] <span class="sc">*</span> age,</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>        a[sex] <span class="sc">~</span> <span class="fu">dnorm</span>(<span class="dv">5</span>, <span class="dv">1</span>),</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>        b[sex] <span class="sc">~</span> <span class="fu">dunif</span>(<span class="dv">0</span>, <span class="dv">10</span>),</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>        sigma <span class="sc">~</span> <span class="fu">dexp</span>(<span class="dv">1</span>)</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> howell_youth_normed</span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>d_youth_2 <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">sex =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>, <span class="at">age =</span> <span class="fu">list</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">12</span>, <span class="dv">0</span><span class="sc">:</span><span class="dv">12</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(</span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>        <span class="at">mu =</span> <span class="fu">map2</span>(</span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>            age, sex,</span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>            <span class="sc">~</span> <span class="fu">sim</span>(m_youth_2, <span class="at">data =</span> <span class="fu">list</span>(<span class="at">age =</span> .x, <span class="at">sex =</span> .y)))</span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>mu_m <span class="ot">&lt;-</span> d_youth_2<span class="sc">$</span>mu[[<span class="dv">2</span>]]</span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>mu_f <span class="ot">&lt;-</span> d_youth_2<span class="sc">$</span>mu[[<span class="dv">1</span>]]</span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>mu_c <span class="ot">&lt;-</span> mu_m <span class="sc">-</span> mu_f</span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="cn">NULL</span>, <span class="at">xlim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">13</span>), <span class="at">ylim =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">15</span>, <span class="dv">15</span>), <span class="at">xlab =</span> <span class="st">"age"</span>, <span class="at">ylab =</span> <span class="st">"weight difference (b-g)"</span>)</span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a><span class="fu">shade</span>( <span class="fu">apply</span>(mu_c, <span class="dv">2</span>, PI, <span class="at">prob =</span> <span class="fl">0.89</span>), <span class="dv">0</span><span class="sc">:</span><span class="dv">12</span>)</span>
+<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a><span class="fu">shade</span>( <span class="fu">apply</span>(mu_c, <span class="dv">2</span>, PI, <span class="at">prob =</span> <span class="fl">0.45</span>), <span class="dv">0</span><span class="sc">:</span><span class="dv">12</span>)</span>
+<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a><span class="fu">shade</span>( <span class="fu">apply</span>(mu_c, <span class="dv">2</span>, PI, <span class="at">prob =</span> .<span class="dv">1</span>), <span class="dv">0</span><span class="sc">:</span><span class="dv">12</span>)</span>
+<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">12</span>,  <span class="fu">apply</span>(mu_c, <span class="dv">2</span>, median))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+</section>
+</section>
+<section id="unit-03" class="level1">
+<h1>Unit 03</h1>
+<section id="lecture-05-elemental-confounds" class="level2">
+<h2 class="anchored" data-anchor-id="lecture-05-elemental-confounds">Lecture 05: Elemental Confounds</h2>
+<ul>
+<li>Happiness and metal bands per capita</li>
+<li>Estimand, recipe, estimator</li>
+<li>Statistical recipes must defend against confounding</li>
+<li>A confound is a feature of the sample that misleads us about the truth</li>
+<li>The four elemental compounds: fork, pipe, collider, descendant</li>
+</ul>
+<section id="the-fork" class="level3">
+<h3 class="anchored" data-anchor-id="the-fork">The fork</h3>
+<p><span class="math inline">\(\newcommand{\indep}{\perp \!\!\! \perp}\)</span></p>
+<ul>
+<li>three variables, X, Y, Z</li>
+<li>X and Y are associated,</li>
+<li>Share a common cause Z</li>
+<li>If you observe X and Y in a sample, you will observe an association (<span class="math inline">\(X \not\indep Y\)</span>)</li>
+<li>If you stratify by Z, the association will disappear (<span class="math inline">\(X \indep Y | Z\)</span>)</li>
+</ul>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<p>
+</p><pre class="mermaid" data-tooltip-selector="#mermaid-tooltip-3">flowchart TD
+    Z --&gt; X
+    Z --&gt; Y
+</pre>
+<div id="mermaid-tooltip-3" class="mermaidTooltip">
+
+</div>
+<p></p>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">300</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>Z <span class="ot">&lt;-</span> <span class="fu">rbernoulli</span>(n)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: `rbernoulli()` was deprecated in purrr 1.0.0.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n, <span class="dv">2</span> <span class="sc">*</span> Z <span class="sc">-</span> <span class="dv">1</span>)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>Y <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n, <span class="dv">2</span> <span class="sc">*</span> Z <span class="sc">-</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="marriage-rates" class="level3">
+<h3 class="anchored" data-anchor-id="marriage-rates">Marriage Rates</h3>
+<ol type="1">
+<li>estimand: causal effect of marriage rate on divorce rate</li>
+<li>scientfic model</li>
+<li>statistical analysis</li>
+<li>analysis</li>
+</ol>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<p>
+</p><pre class="mermaid" data-tooltip-selector="#mermaid-tooltip-4">flowchart TD
+    M[Marriage Rate]
+    A[Age at Marriage]
+    D[Divorce]
+    A --&gt; M
+    A --&gt; D
+    M --&gt; D
+</pre>
+<div id="mermaid-tooltip-4" class="mermaidTooltip">
+
+</div>
+<p></p>
+</div>
+</div>
+</div>
+<p>What does it mean to stratify by a continuous variable? We get different intercepts for each value of Age.</p>
+<div class="columns">
+<div class="column" style="width:50%;">
+<section id="bad-priors" class="level4">
+<h4 class="anchored" data-anchor-id="bad-priors">Bad Priors</h4>
+<p><span class="math inline">\(D_i \sim Normal(\mu_i, \sigma)\)</span></p>
+<p><span class="math inline">\(\mu_i = \alpha + \beta_M M_i + \beta_A A_i\)</span></p>
+<p><span class="math inline">\(\alpha \sim Normal(0, 10)\)</span></p>
+<p><span class="math inline">\(\beta_M \sim Normal(0, 10)\)</span></p>
+<p><span class="math inline">\(\beta_A \sim Normal(0, 10)\)</span></p>
+<p><span class="math inline">\(\sigma \sim Exponential(1)\)</span></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">20</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>bad_priors <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">a =</span> <span class="fu">rnorm</span>(n, <span class="dv">0</span>, <span class="dv">10</span>),</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">bM =</span> <span class="fu">rnorm</span>(n, <span class="dv">0</span>, <span class="dv">10</span>),</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">bA =</span> <span class="fu">rnorm</span>(n, <span class="dv">0</span>, <span class="dv">10</span>)</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>bad_priors <span class="sc">|&gt;</span></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_abline</span>(<span class="fu">aes</span>(<span class="at">slope =</span> bA, <span class="at">intercept =</span> a)) <span class="sc">+</span></span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_x_continuous</span>(<span class="at">limits =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">2</span>, <span class="dv">2</span>)) <span class="sc">+</span></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_y_continuous</span>(<span class="at">limits =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">2</span>, <span class="dv">2</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="notes_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+</div><div class="column" style="width:50%;">
+<section id="good-priors" class="level4">
+<h4 class="anchored" data-anchor-id="good-priors">Good Priors</h4>
+<p><span class="math inline">\(D_i \sim Normal(\mu_i, \sigma)\)</span></p>
+<p><span class="math inline">\(\mu_i = \alpha + \beta_M M_i + \beta_A A_i\)</span></p>
+<p><span class="math inline">\(\alpha \sim Normal(0, .2)\)</span></p>
+<p><span class="math inline">\(\beta_M \sim Normal(0, .5)\)</span></p>
+<p><span class="math inline">\(\beta_A \sim Normal(0, .5)\)</span></p>
+<p><span class="math inline">\(\sigma \sim Exponential(1)\)</span></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">20</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>good_priors <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">a =</span> <span class="fu">rnorm</span>(n, <span class="dv">0</span>, .<span class="dv">2</span>),</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">bM =</span> <span class="fu">rnorm</span>(n, <span class="dv">0</span>, .<span class="dv">5</span>),</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">bA =</span> <span class="fu">rnorm</span>(n, <span class="dv">0</span>, .<span class="dv">5</span>)</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>good_priors <span class="sc">|&gt;</span></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_abline</span>(<span class="fu">aes</span>(<span class="at">slope =</span> bA, <span class="at">intercept =</span> a)) <span class="sc">+</span></span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_x_continuous</span>(<span class="at">limits =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">2</span>, <span class="dv">2</span>)) <span class="sc">+</span></span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_y_continuous</span>(<span class="at">limits =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">2</span>, <span class="dv">2</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="notes_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rethinking)</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(WaffleDivorce)</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> WaffleDivorce <span class="sc">|&gt;</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">select</span>(<span class="at">D =</span> Divorce, <span class="at">M =</span> Marriage, <span class="at">A =</span> MedianAgeMarriage) <span class="sc">|&gt;</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">everything</span>(), rethinking<span class="sc">::</span>standardize))</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>m_DMA <span class="ot">&lt;-</span> <span class="fu">quap</span>(</span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">alist</span>(</span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>        D <span class="sc">~</span> <span class="fu">dnorm</span>(mu, sigma),</span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>        mu <span class="ot">&lt;-</span> a <span class="sc">+</span> bM <span class="sc">*</span> M <span class="sc">+</span> bA <span class="sc">*</span> A,</span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>        a <span class="sc">~</span> <span class="fu">dnorm</span>(<span class="dv">0</span>, <span class="fl">0.2</span>),</span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>        bM <span class="sc">~</span> <span class="fu">dnorm</span>(<span class="dv">0</span>, <span class="fl">0.5</span>),</span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>        bA <span class="sc">~</span> <span class="fu">dnorm</span>(<span class="dv">0</span>, <span class="fl">0.5</span>),</span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>        sigma <span class="sc">~</span> <span class="fu">dexp</span>(<span class="dv">1</span>)</span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> <span class="fu">as.list</span>(d)</span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a><span class="fu">precis</span>(m_DMA)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>               mean         sd       5.5%      94.5%
+a     -1.060291e-07 0.09707607 -0.1551464  0.1551462
+bM    -6.538128e-02 0.15077312 -0.3063459  0.1755833
+bA    -6.135136e-01 0.15098366 -0.8548147 -0.3722126
+sigma  7.851184e-01 0.07784350  0.6607095  0.9095274</code></pre>
+</div>
+</div>
+<section id="simulating-interventions" class="level4">
+<h4 class="anchored" data-anchor-id="simulating-interventions">Simulating Interventions</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>post <span class="ot">&lt;-</span> <span class="fu">as_tibble</span>(<span class="fu">extract.samples</span>(m_DMA))</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>sim_fix_M <span class="ot">&lt;-</span> post <span class="sc">|&gt;</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Sample A from the data</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">expand_grid</span>(<span class="at">A =</span> <span class="fu">sample</span>(d<span class="sc">$</span>A, <span class="at">size =</span> <span class="dv">100</span>, <span class="at">replace =</span> <span class="cn">TRUE</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Simulate D, fixing M at 0 (exactly the sample mean) and 1 (one sd above)</span></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>        <span class="at">DM0 =</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), a <span class="sc">+</span> bM <span class="sc">*</span> <span class="dv">0</span> <span class="sc">+</span> bA <span class="sc">*</span> A, sigma),</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>        <span class="at">DM1 =</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), a <span class="sc">+</span> bM <span class="sc">*</span> <span class="dv">1</span> <span class="sc">+</span> bA <span class="sc">*</span> A, sigma),</span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>        <span class="at">cM =</span> DM1 <span class="sc">-</span> DM0</span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>sim_fix_M <span class="sc">|&gt;</span></span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggplot</span>(<span class="fu">aes</span>(cM)) <span class="sc">+</span></span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_density</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="notes_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+</section>
+<section id="the-pipe" class="level3">
+<h3 class="anchored" data-anchor-id="the-pipe">The Pipe</h3>
+<p>There is a mediating factor Z that causally sits between X and Y.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<p>
+</p><pre class="mermaid" data-tooltip-selector="#mermaid-tooltip-5">flowchart TD
+    X --&gt; Z
+    Z --&gt; Y
+</pre>
+<div id="mermaid-tooltip-5" class="mermaidTooltip">
+
+</div>
+<p></p>
+</div>
+</div>
+</div>
+<ul>
+<li>Plant Fungus example</li>
+<li>We want to estimate the total effect of an anti-fungal treatment on the height of the plant</li>
+<li>The effect of the treatment on the height is a pipe, mediated by the effect of the treatment on the fungus</li>
+<li>The consequences of the treatment itself (not the outcome) should not be included in the model</li>
+<li>In this case, that means that the estimator <span class="math inline">\(T \to H\)</span> should not control for <span class="math inline">\(T \to F\)</span></li>
+<li>If you stratify by a consequence of the treatment, it can sometimes induce a ‘post-treatment’ bias</li>
+<li>This could bias estimator in either direction</li>
+</ul>
+</section>
+<section id="the-collider" class="level3">
+<h3 class="anchored" data-anchor-id="the-collider">The Collider</h3>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<p>
+</p><pre class="mermaid" data-tooltip-selector="#mermaid-tooltip-6">flowchart TD
+    X --&gt; Z
+    Y --&gt; Z
+</pre>
+<div id="mermaid-tooltip-6" class="mermaidTooltip">
+
+</div>
+<p></p>
+</div>
+</div>
+</div>
+<ul>
+<li>X and Y are not associated <span class="math inline">\(X \indep Y\)</span></li>
+<li>X and Y both influence Z</li>
+<li>once stratified by Z, X and Y <em>are</em> associated <span class="math inline">\(X \not\indep Y | Z\)</span></li>
+<li>You might think that Z is a cause of <em>both</em> X and Y</li>
+<li>Colliders come from a number of sources</li>
+</ul>
+<section id="example" class="level4">
+<h4 class="anchored" data-anchor-id="example">Example</h4>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<p>
+</p><pre class="mermaid" data-tooltip-selector="#mermaid-tooltip-7">flowchart TD
+    N[N = Newsworthy]
+    A[A = Awarded]
+    T[T = Trustworthy]
+    N --&gt; A
+    T --&gt; A
+</pre>
+<div id="mermaid-tooltip-7" class="mermaidTooltip">
+
+</div>
+<p></p>
+</div>
+</div>
+</div>
+<ul>
+<li>Awarded grants must have been sufficiently newsworthy or trustworthy</li>
+<li>Few grants are high in both</li>
+<li>This results in a <em>negative</em> association, conditioning on award</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>grants <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">N =</span> <span class="fu">rnorm</span>(<span class="dv">500</span>), <span class="at">T =</span> <span class="fu">rnorm</span>(<span class="dv">500</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">A =</span> N <span class="sc">+</span> T <span class="sc">&gt;</span> <span class="fl">1.5</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>grants <span class="sc">|&gt;</span></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggplot</span>(<span class="fu">aes</span>(N, T)) <span class="sc">+</span></span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">color =</span> A), <span class="at">shape =</span> <span class="dv">21</span>, <span class="at">size =</span> <span class="dv">3</span>, <span class="at">stroke =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_smooth</span>(<span class="fu">aes</span>(<span class="at">color =</span> A), <span class="at">se =</span> <span class="cn">FALSE</span>, <span class="at">method =</span> <span class="st">"lm"</span>) <span class="sc">+</span></span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_smooth</span>(<span class="at">color =</span> <span class="st">"black"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>, <span class="at">method =</span> <span class="st">"lm"</span>) <span class="sc">+</span></span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`geom_smooth()` using formula = 'y ~ x'
+`geom_smooth()` using formula = 'y ~ x'</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="notes_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<ul>
+<li>The same phenomenon is at play in the NBA, where the sample of players exists on a frontier of size and skill.</li>
+</ul>
+</section>
+</section>
+<section id="the-descendant" class="level3">
+<h3 class="anchored" data-anchor-id="the-descendant">The Descendant</h3>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<p>
+</p><pre class="mermaid" data-tooltip-selector="#mermaid-tooltip-8">flowchart LR
+    X --&gt; Z
+    Z --&gt; Y
+    Z --&gt; A[A: The Descendant]
+</pre>
+<div id="mermaid-tooltip-8" class="mermaidTooltip">
+
+</div>
+<p></p>
+</div>
+</div>
+</div>
+<ul>
+<li>A isn’t a direct mediator, but acts as a proxy for Z when included in a model</li>
+<li>In this way, including A can replicate another elemental confound by effectively including Z</li>
+</ul>
+</section>
+</section>
+<section id="lecture-06-good-and-bad-controls" class="level2">
+<h2 class="anchored" data-anchor-id="lecture-06-good-and-bad-controls">Lecture 06: Good and bad controls</h2>
+<ul>
+<li>research is like trick shot videos, shows successes and hides failure</li>
+<li>avoid being clever at all costs, because it’s unreliable and opaque</li>
+<li>we use logic to derive the implications of our causal models</li>
+<li>what does it mean to use logic to derive conclusions from our causal models?</li>
+<li>How to deal with unobserved confounds? The most rigorous way is to randomize</li>
+</ul>
+</section>
+<div class="columns">
+<div class="column" style="width:50%;">
+<section id="no-randomization" class="level2">
+<h2 class="anchored" data-anchor-id="no-randomization">No Randomization</h2>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<p>
+</p><pre class="mermaid" data-tooltip-selector="#mermaid-tooltip-9">flowchart TD
+    U --&gt; X
+    U --&gt; Y
+    X --&gt; Y
+</pre>
+<div id="mermaid-tooltip-9" class="mermaidTooltip">
+
+</div>
+<p></p>
+</div>
+</div>
+</div>
+</section>
+</div><div class="column" style="width:50%;">
+<section id="with-randomization" class="level2">
+<h2 class="anchored" data-anchor-id="with-randomization">With Randomization</h2>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<p>
+</p><pre class="mermaid" data-tooltip-selector="#mermaid-tooltip-10">flowchart TD
+    R --&gt; X
+    X --&gt; Y
+    U --&gt; Y
+    X .- U
+</pre>
+<div id="mermaid-tooltip-10" class="mermaidTooltip">
+
+</div>
+<p></p>
+</div>
+</div>
+</div>
+</section>
+</div>
+</div>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    setTimeout(function() {
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

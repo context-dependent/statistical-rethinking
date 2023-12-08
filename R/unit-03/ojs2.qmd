@@ -1,0 +1,25 @@
+---
+title: "Untitled"
+format: html
+---
+
+```{r}
+dat <- ggplot2::mpg
+
+
+
+ojs_define(rdata = dat)
+```
+
+```{ojs}
+d = transpose(rdata);
+
+
+Plot.plot({
+    inset: 8,
+    grid: true,
+    marks: [
+        Plot.dot(d, {x: "hwy", y: "cty"})
+    ]
+});
+```

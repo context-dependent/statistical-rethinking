@@ -1,0 +1,469 @@
+# Homework
+
+```{r}
+library(tidyverse)
+library(rethinking)
+library(tidybayes)
+
+```
+
+## 1. Predictive power vs causal insight
+
+Revisit models 6.9 and 6.10 on marriage, age, and happiness. 
+Compare them quantitatively on measures of predictive accuracy PSIS and WAIC. 
+Compare them analytically to determine which yields the correct causal inference. 
+
+#### the data
+```{r}
+d <- sim_happiness(seed = 1977, N_years = 1000) |>
+    as_tibble() |>
+    filter(age > 17) |>
+    mutate(
+        married_idx = married + 1,
+        age_s = (age - 18) / (65 - 18)
+    )
+```
+
+#### model 6.9
+
+6.9 controls for marital status, incorrectly yielding the inference that happiness declines with age. 
+
+```{r}
+#| message: false
+#| warn: false
+
+m6.9 <- ulam(
+    alist(
+        happiness ~ normal(mu, sigma),
+        mu <- a[married_idx] + B_age * age_s,
+        
+        a[married_idx] ~ normal(0, 1),
+        B_age ~ normal(0, 2),
+        sigma ~ dexp(1)
+    ), 
+    data = d, 
+    log_lik = TRUE,
+    chains = 4, 
+    cores = parallel::detectCores()
+)
+
+precis(m6.9, depth = 2)
+```
+
+#### model 6.10
+
+This model provides the correct causal inference -- that happiness does not change with age -- by not controlling for marital status. 
+
+```{r}
+m6.10 <- ulam(
+    alist(
+        happiness ~ normal(mu, sigma),
+        mu <- a + B_age * age_s,
+
+        a ~ normal(0, 1),
+        B_age ~ normal(0, 2),
+        sigma ~ dexp(1)
+    ),
+    data = d,
+    log_lik = TRUE,
+    chains = 4,
+    cores = parallel::detectCores()
+)
+
+precis(m6.10)
+```
+
+#### comparing on PSIS and WAIC
+
+Model 6.9, the one which controls for the collider of marital status, is expected to make better predictions.
+Model 6.10 yields the correct causal inference. 
+```{r}
+compare(m6.9, m6.10, func=PSIS)
+compare(m6.9, m6.10, func=WAIC)
+```
+
+## 2. Identifying and analyzing the best predictive model
+
+Reconsider urban fox analysis from homework 3. 
+Use PSIS and WAIC scores to identify the best predictive model. 
+Analyze the model to construct an aligned causal interpretation of the coefficients. 
+
+#### data
+```{r}
+data(foxes, package = 'rethinking')
+
+d_foxes <- foxes |>
+    as_tibble() |>
+    mutate(
+        across(
+            c(avgfood, groupsize, area, weight),
+            list(zs = standardize)
+        )
+    )
+
+d_foxes
+```
+
+#### the causal truth
+
+We are to assume the following dag is _true_:
+```{dot}
+digraph D {
+    label = "causal pathways to fox weight";
+    labelloc = "t";
+    node [shape=plaintext]
+
+    { rank=same food groupsize}
+
+    area -> food;
+    food -> {groupsize, weight};
+    groupsize -> weight;
+}
+```
+
+
+
+#### single predictor models
+
+```
+m1.a: mu ~ area
+m1.b: mu ~ avgfood
+m1.c: mu ~ groupsize
+```
+
+```{r}
+m1.a <- quap(
+    alist(
+        weight_zs ~ dnorm(mu, sigma),
+        mu <- alpha + B_area * area_zs,
+        alpha ~ dnorm(0, 1), 
+        B_area ~ dnorm(0, 2),
+        sigma ~ dexp(1)
+    ), 
+    data = d_foxes
+)
+
+m1.b <- quap(
+    alist(
+        weight_zs ~ dnorm(mu, sigma),
+        mu <- alpha + B_avgfood * avgfood_zs,
+        alpha ~ dnorm(0, 1), 
+        B_avgfood ~ dnorm(0, 2), 
+        sigma ~ dexp(1)
+    ),
+    data = d_foxes
+)
+
+m1.c <- quap(
+    alist(
+        weight_zs ~ dnorm(mu, sigma),
+        mu <- alpha + B_groupsize * groupsize_zs,
+        alpha ~ dnorm(0, 1),
+        B_groupsize ~ dnorm(0, 2),
+        sigma ~ dexp(1)
+    ),
+    data = d_foxes
+)
+
+plot(precis(m1.a))
+plot(precis(m1.b))
+plot(precis(m1.c))
+```
+
+#### paired predictor models
+
+```
+m2.a: mu ~ area + food
+m2.b: mu ~ area + groupsize
+m2.c: mu ~ food + groupsize
+```
+
+```{r}
+m2.a <- quap(
+    alist(
+        weight_zs ~ dnorm(mu, sigma),
+        mu <- alpha + B_area * area_zs + B_avgfood * avgfood_zs,
+        alpha ~ dnorm(0, 1), 
+        B_area ~ dnorm(0, 2),
+        B_avgfood ~ dnorm(0, 2),
+        sigma ~ dexp(1)
+    ),
+    data = d_foxes
+)
+
+m2.b <- quap(
+    alist(
+        weight_zs ~ dnorm(mu, sigma),
+        mu <- alpha + B_area * area_zs + B_groupsize * groupsize_zs, 
+        alpha ~ dnorm(0, 1),
+        B_area ~ dnorm(0, 2),
+        B_groupsize ~ dnorm(0, 2),
+        sigma ~ dexp(1)
+    ),
+    data = d_foxes
+)
+
+m2.c <- quap(
+    alist(
+        weight_zs ~ dnorm(mu, sigma),
+        mu <- alpha + B_avgfood * avgfood_zs + B_groupsize * groupsize_zs,
+        alpha ~ dnorm(0, 1),
+        B_avgfood ~ dnorm(0, 2),
+        B_groupsize ~ dnorm(0, 2),
+        sigma ~ dexp(1)
+    ),
+    data = d_foxes
+)
+
+precis(m2.a)
+precis(m2.b)
+precis(m2.c)
+```
+
+#### all predictors
+
+```
+m3.a: mu ~ area + food + groupsize
+```
+
+```{r}
+m3.a <- quap(
+    alist(
+        weight_zs ~ dnorm(mu, sigma),
+        mu <- alpha + B_area * area_zs + B_avgfood * avgfood_zs + B_groupsize * groupsize_zs,
+        alpha ~ dnorm(0, 1), 
+        B_area ~ dnorm(0, 2),
+        B_avgfood ~ dnorm(0, 2),
+        B_groupsize ~ dnorm(0, 2), 
+        sigma ~ dexp(1)
+    ),
+    data = d_foxes
+)
+
+
+precis(m3.a)
+```
+
+#### comparison
+
+```{r}
+compare(m1.a, m1.b, m1.c, m2.a, m2.b, m2.c, m3.a, func = WAIC)
+compare(m1.a, m1.b, m1.c, m2.a, m2.b, m2.c, m3.a, func = PSIS)
+```
+
+- m3.a and m2.c are virtually identical with respect to predictive performance
+- WAIC prefers m2.c, while PSIS prefers m3.a[^waic-vs-psis]
+- I will select m3.a, as I think it best fits the challenge posed by the question
+
+#### causal interpretation
+
+```{r}
+plot(precis(m3.a))
+```
+
+m3.a estimates the joint effects of area, food, and groupsize on individual fox weight. 
+It is quite confident that more area and / or food means heavier foxes on average. 
+It is also extremely confident that more foxes in a given group means lighter foxes on average. 
+
+Our model doesn't conform to the causal structure implied by the dag. 
+Rather, it naively assumes a form like the following: 
+
+```{dot}
+digraph D {
+    {food, area, groupsize} -> weight
+}
+```
+
+I think the point of this question is to illustrate the misleading implication of the best predictive model, which 
+happens to disregard the relationship between area and food, and the one between food and groupsize. 
+From my understanding, the truth of the matter is that adding more area adds more food, and adding more food causes the group to expand. 
+Ultimately, groups of foxes respond to more available resources by making more, rather than bigger, foxes, but you might miss that from the results of m3.a. 
+
+## 3. Cherry blossom SZN
+
+Build and compare at least two different models to predict cherry blossom timing on the basis of temperatures in March of the same year. 
+Predict the timing of cherry blossoms in 2050, assuming march temperature has risen to 9 degrees. 
+
+```{dot}
+digraph D {
+    temp -> doy
+}
+```
+
+#### data
+
+```{r}
+data(cherry_blossoms, package = "rethinking")
+
+d_cherry <- cherry_blossoms |>
+    as_tibble() |>
+    drop_na() |>
+    mutate(
+        temp_zs = standardize(temp), 
+        doy_zs = standardize(doy)
+    )
+
+precis(d_cherry)
+```
+
+In the average year represented in the data, the temperature in March is 6.1 degrees celius, and the cherry blossoms begin blooming just before the 105th day. 
+The 105th day of the year is April 4th, ordinarily, or April 5th in a leap year. 
+
+```{r}
+d_cherry |>
+    ggplot(aes(temp_zs, doy_zs)) + 
+    geom_point(shape = 21, size = 2) + 
+    geom_smooth(se = FALSE)
+```
+
+Our records show a noisy but roughly linear negative relationship between March temperature and cherry blossom timing. 
+In other words, it looks like the cherry blossoms bloom earlier in years with hotter Marches.
+
+```{r}
+d_cherry |>
+    pivot_longer(
+        cols = c(matches("temp$|upper|lower")),
+        values_to = "degrees_c"
+    ) |>
+    mutate(
+        measure = case_when(
+            name == "temp" ~ "average", 
+            TRUE ~ str_remove(name, "temp_")
+        ) |>
+        fct_relevel("upper", "average", "lower")
+    ) |>
+    ggplot(aes(degrees_c, doy)) + 
+    facet_wrap(~measure, ncol = 1) + 
+    geom_point(shape = 21, fill = "pink") + 
+    geom_smooth(se = FALSE, method = "lm")    
+```
+
+While not called for, I felt compelled to check out the relationships between upper / lower temp and doy as well. 
+It looks like upper, lower, and average tempuratures are highly correlated, and that doy ~ average has the steepest slope. 
+It makes sense, since the average contains more information than the upper and lower temps. 
+
+#### linear and quadratic models
+
+```{r}
+q3.a <- quap(
+    alist(
+        doy_zs ~ dnorm(mu, sigma),
+        mu <- alpha + B_temp * temp_zs, 
+        alpha ~ dnorm(0, 1),
+        B_temp ~ dnorm(0, 2),
+        sigma ~ dexp(1)
+    ), 
+    data = d_cherry
+)
+
+q3.b <- quap(
+    alist(
+        doy_zs ~ dnorm(mu, sigma),
+        mu <- alpha + B_temp * temp_zs + B_tempsq * temp_zs ^ 2, 
+        alpha ~ dnorm(0, 1),
+        B_temp ~ dnorm(0, 2), 
+        B_tempsq ~ dnorm(0, 2),
+        sigma ~ dexp(1)
+    ),
+    data = d_cherry
+)
+
+precis(q3.a)
+precis(q3.b)
+```
+
+#### comparison
+
+```{r}
+compare(q3.a, q3.b, func = WAIC)
+compare(q3.a, q3.b, func = PSIS)
+```
+
+q3.a is preferred by both WAIC and PSIS, and has the additional advantage of being a simpler and easier to interpret. 
+
+#### prediction
+
+```{r}
+library(tidybayes.rethinking)
+
+scale_ext <- function(x, y) {
+    (x - mean(y)) / sd(y)
+}
+
+unscale_ext <- function(x, y) {
+    x * sd(y) + mean(y)
+}
+
+p <- tibble(temp = 5:10) |>
+    mutate(temp_zs = scale_ext(temp, d_cherry$temp)) |>
+    add_predicted_draws(q3.a) |>
+    mutate(doy_pred = unscale_ext(.prediction, d_cherry$doy))
+
+median_hdi(p, .width = .89)
+```
+
+Our model predicts that, if March temperature is 9 degrees, the cherry blossoms will begin between day 87 (March 27) and 106 (April 15) 89% of the time. 
+The median of the predicted draws is 96 (April 5)
+
+## 4. dino growth curves
+
+#### data
+
+```{r}
+data(Dinosaurs, package="rethinking")
+
+d_dino <- Dinosaurs |>
+    as_tibble() |>
+    mutate(age = age - min(age)) |>
+    group_by(species) |>
+    mutate(mass_p = (mass - min(mass)) / diff(range(mass))) |>
+    ungroup()
+```
+
+#### observations
+
+```{r}
+d_dino |>
+    ggplot(aes(age, mass_p)) + 
+    ```{
+    ```{
+    ```{
+    ```{
+    ```{
+    ```{
+    ```{
+    ```{dot}
+    dot
+    ```}
+    dot
+    ```}
+    dot
+    ```}
+    dot
+    ```}
+    dot
+    ```}
+    dot
+    ```}
+    dot
+    ```}
+    
+    ```
+    geom_path() + 
+    geom_point() + 
+    facet_wrap(~species)
+```
+
+#### a linear model
+
+```{r}
+q4.1 <- ulam(
+    alist(
+        mass_p ~ dnorm(mu, sigma)
+        mu <- B_age 
+    )
+)
+
+```
+
+[^waic-vs-psis]: why do WAIC and PSIS prefer different models? 

@@ -1,0 +1,1669 @@
+---
+title: "Statistical Rethinking Course Notes"
+author: "TM"
+---
+
+Though I've covered much of this material previously in Krushke's book, I need to reinforce and harden my knowledge base if I am to help in the fight against the frequentist hegemony.
+I'm reading this book, which is intentionally structured sequentially as a course, on Alex's recommendation.
+This file contains notes on the material, structured analogously to the book, which unfolds over 17 chapters!
+
+## Sections
+
+Each section begins with ..., contains ..., and ends with ... .
+
+## Setup
+
+1. _Install stan, rstan, cmdstanr_ kind of a pain. CRAN version of `rstan` is incompatible with the latest version of R, god knows why. RTools is needed to build source packages. Visit [stan homepage](mc-stan.org) for instructions.
+2. _Install rethinking_ also weirdly a pain. The rethinking dependencies are a tad sloppily defined, so there are a couple classic "You need new processx, can't install processx" loops
+
+## External Reference Material
+
+[Stan User Manual](https://mc-stan.org/docs/2_31/stan-users-guide-2_31.pdf)
+
+# Unit 01: Introduction
+
+:::{.callout-note}
+## Questions about Unit 01
+
+1. How do we decide what goes in the DAG?
+2. How is the degree of uncertainty mathematically represented in the Beta distribution?
+:::
+
+This unit begins with Mcelreath's perspective on the correct direction of the relationship between research and stats.
+In his model -- fully reflected in the course -- research precedes data and data analysis.
+Statistical models are 'Golems', powerful but stupid automata.
+Animated by sensible and carefully specified goals, they contribute to the progress toward truth.
+Given careless or vague instructions, however, they are liable to do meaningful damage, much like the chapter one's titular 'Golem of Prague'.
+
+He then demonstrates the fundamentals of the Bayesian approach by working through the problem of estimating the proportion of the earth's surface covered in water using a randomly generated sample of points.
+This example clearly distinguishes _Rethinking_ from the other stats courses I've taken, which have all begun with frequentist staples like drawing a coloured ball from a bag, or flipping a coin whose fairness is in question.
+While the globe example is trivial (we already know the answer) its form is much more portable to other more meaningful research questions.
+
+## Lecture 01: Research Before Data
+
+- we're not interested in fussing with statistical models for their own sake
+- we want to use them to answer scientific questions about the world we inhabit
+- the course follows that intention, connecting each method to applied research
+- these videos make revisions to the content of the course, which will ultimately be reflected in a third editions of the book
+- we're not going to talk about the conflict between Bayesian and Frequentist stats
+- Instead, we're going to focus on providing the best strategies for _causal inference_
+
+### On Causal Inference
+
+- prediction of the causes of an intervention
+- cannot be analyzed without a causal model
+- causal imputation means that you're constructing unobserved counterfactual observations given a causal model
+- intimately related to description and design
+- even when the goal is _descriptive_, you need a causal model
+- the sample is caused by things. it differs from the population, and if your goal is to describe it, you need to model the causes of those differences.
+
+### DAGs
+
+- DAG stands for Directed Acyclic Graph
+- They are used to represent heuristic causal models
+- analyzing our causal DAGs helps to identify necessary statistical models
+- Get the researcher's head out of data and into science
+- DAGs can be correct or incorrect
+
+### Golems
+
+- using the classic stats flowchart for picking a test is very limiting, and creates incorrect and dangerous ideas about what they can do
+- Gosset (Student, of T test) invented the test to do quality control on Guinness
+- null models are rarely unique, and therefore rarely useful or sensible
+- clearly inadequate in identifying the mechanisms of evolution
+- for most scientific problems, we want to consider multiple alternative causal models
+- we need golems to do more, make generative causal models, stats models justified by generative models and questions, an effective way to produce estimates
+- must be careful with controls
+- Bayes is practical, not philosophical. It allows scientists to account for measurement error, missing data, latent factors, etc.
+
+### Owls
+
+- circles to owl unclear, as metaphor for general statistical pedagogy
+- this course goes more slowly, but it's more successful
+- we're going to have a specific general workflow
+- scientific data analysis requires software engineering, but the current state of it is largely amateur
+- theory, model, evidence loop
+
+## Chapter 01: The Golem of Prague
+
+This chapter gives us a fairly traditional introduction to the concept of the statistical model.
+It emphasizes the insufficiency of any statistical approach and the need for careful and thorough understanding.
+Much more than _Fallacy_, _Rethinking_ justifies its Bayesian focus with intuition and usefulness.
+It seems that Mcelreath and Clayton disagree about the extent to which Bayesian methods can mitigate the risk of overfitting.
+A possible explanation, Clayton puts much more emphasis on the power of informed priors to ignore trivial features, while
+Mcelreath seems to simply find the _results_ of Bayesian models better to explain and work with.
+
+The chapter ends with an overview of the content in the remaining 16 chapters, which is preceded by a meditation on causality.
+Mcelreath frames the problem by dividing scientists into three camps of dummies that I'd give the following names:
+observationists, for whom causality is impossible to assign and therefore useless to study;
+strict counterfactualists, who cannot accept a statistical argument for causality except under the conditions of a classical randomized controlled trial;
+and causal saladites, who toss control variables into a model willy nilly, observe the results, and then tell a story about causality.
+He suggests that the saladites predominate, but that each camp is obviously sily.
+Given his druthers, he would replace the causal salad with a causal model (DAG) and the statistical models it asks for.
+His approach promises to permit more relaxed data generating conditions than the counterfactualists, but not to abandon coherence or sensibility on that count, as the saladites do.
+
+- Prague hosted the seat of the holy roman emperor in the 1500s
+- It was also the site of the invention of one of the earliest robots, the "Golem of Prague"
+- A golem is a clay robot from Jewish folklore
+- It is powerful, so it can be dangerous
+- Analogous in vibe to a faustian bargain
+- Scientific models are golems
+- Of specific concern to this book, statistical procedures and tests are golems
+- These golems are powerful, but 'inflexible and fragile'
+- Most researchers and students who use them don't grasp the underlying unity or logic of the complex array that has emerged
+- We need to foreground that underlying unity by teaching statistical inference as a set of strategies, rather than as a collection of purpose-built and otherwise unrelated tools
+- The tacit belief among students and academics that the sole aim of statistics is to test and falsify null hypotheses is a problem.
+- Karl Popper is mentioned as "possibly the most influential philosopher of science"
+- Mcelreath argues that the narrow constraint of stats to falsifying the null misreads Popper, who, he says, felt simply that hypotheses should be _falsifiable_, not that falsification is the only thing scientists should do.
+- Deductive falsification is impossible in nearly every scientific context, science demands more than stats, and so the stats we use should not pretend to stand on their own.
+- Hypotheses are not models and models are not hypotheses
+- Delineation between statistical model, process model (?), hypothesis
+- Process models contextualize statistical models
+- Statistical models depend on hypotheses
+- Falsification is always consensual, rather than strictly logical
+- This book intends to teach its reader how to engineer and troubleshoot statistical golems, the Bayesian way
+- frequentism is framed as a'special case' of bayesian models, with different abstractions that motivate and justify it
+- many scientists interpret non-bayesian results in bayesian terms (e.g. mistaking p-0values for bayesian posteriors)]
+- Laplace -> Jeffreys -> Cox -> Jaynes is presented as this book's intellectual lineage, in line with _Fallacy_
+- Alternatives to Bayesian inference or analytical approximations remain useful because of the computational cost of Bayesian modelling
+- Discussion of overfitting, cross-validation, information criteria, alongside the value of testing models for predictive accuracy
+- A parameter can be usefully regarded as a missing model
+- Multilevel Models are turtles the whole way down. They can help with overfitting because they do partial pooling.
+- MLM's should be the default form of regression, since many (maybe most?) processes are hierarchical and since they are a more general case
+- Tukey used MLMs to forecast elections in the 1960s
+- This is where Alex's love of DAGs comes from.
+- The DAG is a simple type of a Graphical Causal Model (GCM)
+- Causal inference demands a causal model that is separate from the statistical model
+- The causal DAG asks for one or more statistical models
+- The approach that dominates in many parts of biology and the social sciences is a "Causal Salad", where 'control' variables (vegetables) are tossed into a statistical model (bowl), changes to the estimates are observed, and a story about causation follows.
+- This is incorrect, as the glib name would hint.
+
+## Lecture 02: The Garden of Forking Data
+
+- ex-post notes
+- The probability of something specific happening is the number of ways it can happen as a proportion of the number of ways any specific thing could happen
+- Toss the globe, pick a point, it's water or land, do it again, what could the true proportion be?
+- nice animated illustration of Bayesian updating
+
+## Chapter 02: Small Worlds and Large Worlds
+
+:::{.callout-hint}
+## Key Terms
+
+A **PARAMETER** is a conjectured value about which we're interested in learning. In the globe example, it is _p_, the proportion of the globe covered in water.
+
+The relative number of ways that a value _p_ can produce the data is called a **LIKELIHOOD**.
+
+Every time you **UPDATE** your understanding with data, you start with a **PRIOR PROBABILITY** and finish with a **POSTERIOR PROBABILITY**.
+
+:::
+
+- Columbus guessed wrong. He thought the world was much smaller than it actually was (and is)
+- In RM's framing, the small world is the theoretical one we construct in our modelling endeavours, while the large one is the real one.
+- From the bag to the dice to the continuous possibility space of the globe
+- Bayesian and frequentist stats share in common the fundamental importance of likelihood, Bayes' theorem just lets us do more with it
+
+$$
+Posterior = \frac{Probability \ of \ the \ Data \times Prior}{Average \ probability of the data}
+$$
+
+- In this update formula, the role of the denominator is just to normalize the relative likelihoods given by the numerator, such that the probability distribution follows our expectations with respect to probability (it sums or integrates to 1)
+- To calculate that term, we need to figure out the indefinite integral of the distributions that comprise our generative model
+- This figuring quickly becomes intractable as complexity increases, but simulation gives us a handy and accurate approximation without the analytical calculus
+- Grid approximation, quadratic approximation, and MCMC are the alternatives covered in the book
+
+### Grid Approximation
+
+1. define the grid, or the number of points to use in estimating the posterior, then make a list of hte parameter values in the grid
+2. compute the value of the prior at each parameter value on the grid
+3. Compute the likelihood at each parameter value
+4. compute the unstandardized posterior at each parameter value, by multiplying the parameter by the likelihood
+5. standardize the posterior, by dividing each value by the sum of all values
+
+# Unit 2
+
+## Lecture 3: Geocentric models
+
+- planets are wanderers, zig-zagging through the sky
+- the geocentric model is predictively accurate but wrong
+- ptolemy and other ancient astronomers were able to make very accurate models
+- the point is that stat mods can make highly accurate predictions, but cannot on their own explain complex systems
+- piazzi observed a new comet, which he lost, and which could not be found with predictions from the geocentric models
+- It turns out that comet was ceres, a dwarf planet between mars and jupiter
+- Gauss figured out that it was on a different orbital plane
+- Linear Regression is really powerful, but it helps to keep it conceptually separate from structural / causal models
+- Gaussian distribution illustrated with people standing in a field, flipping coins and moving closer to and further away from the halfway line
+- If our goal is to estimate the mean and variance of a variable, the normal is the least informative (maximum entropy) distribution to use
+- A variable does not have to be empirically normally distributed in order to use the normal error model
+
+:::{.callout-note}
+### Goals for this lecture
+
+1. Language for representing models
+2. calculate posterior distributions with multiple unknowns
+3. Build linear models
+
+Don't have to understand them all at once, just have to feel some flow. if you get stuck, back up and watch previous lectures.
+:::
+
+- Owl drawing workflow: question, assumptions, generative model, estimator
+
+### Linear Regression
+
+- use rethinking dataset `Howell1` to model relationship between adult weight and height
+- Step 1 (question): How does height influence weight?
+- Step 2 (scientific model): Weight is some function of height and other, unobserved factors
+- Step 3 (generative model): $W = \Beta H + U$
+
+```{r}
+#| message: false
+
+library(tidyverse)
+
+sim_weight <- function(height, beta_height, sd) {
+    n <- length(height)
+    error <- rnorm(n, 0, sd)
+    weight <- beta_height * height + error
+}
+
+dat <- tibble(height = runif(200, min = 130, max = 170)) |>
+    mutate(
+        weight = sim_weight(height, 0.5, 5)
+    )
+
+dat |>
+    ggplot(aes(height, weight)) +
+    geom_point(shape = 21, size = 4, stroke = 1, color = "tomato")
+```
+
+
+:::{.callout-tip}
+## Describing our model
+
+Standard statistical notation describes models in terms of their variables
+
+$$
+W_i = \beta H_i + U_i
+U_i ~ Normal(0, \sigma)
+H_i ~ Uniform(130, 170)
+$$
+
+this notation reverses the order in the code, where the random info is generated first
+:::
+
+- Step 4 (developing an estimator): how aveerage weight changes with height
+    + $E(W_i | H_i) = \alpha + \beta H_i + \epsilon$
+    + Posterior probability of a specific line is the number of ways the data could have been produced, tiems the prior, all divided by the normalizing constant, which we're not paying much attn to here.
+    + $W_i ~ Normal(\mu_i, \sigma)
+- Step 5 (estimate the posterior): shows cool grid approximation charts
+- posterior distribution if full of lines, which converge to a smaller and smaller range as the number of smaples increases
+- We're going to use quadratic approximation in the rest of the course
+
+::: {.callout-note}
+## Constructing Priors
+
+- Priors should express scientific knowledge, but _softly_
+- In our case, we say:
+  + $\alpha ~ Normal(0, 10) \to$ when height is zero, weight is also
+  + $\beta ~ Uniform(0, 1) \to$ weight increases (on avg) with height, weight is less than height
+  + $\sigma ~ Uniform(0, 10) \to$ sigma must be positive
+- Priors not the most important part of Bayesian analysis
+:::
+
+- Step 6: validate the model
+    + run the model on synthetic data, whose parameters are known!
+- Step 7: analyze the data
+    + run the validated model on the actual data
+- No one true line in Bayesian inference
+- Can simulate observations using param distributions
+- models are like thermometers,
+
+## Lecture 04: Categories and Curves
+
+- geocentric model is wrong but successful
+- linear models can similarly be used to esimate non-linear processes
+- the new element here is that we will be using multiple estimands, which means multiple estimators
+- we also want an estimate that isn't going to show up in a summary table, so we need to post-process them
+- categories are discrete (indicator and index variables)
+- curves are continuous
+
+### Categories
+
+- we want to stratify by category
+- in `Howell1`, sex can be thought of as a binary category
+- How do we justify the causal model? we have to think about the directionality of the relationship theoretically.
+- In this case, we consider the relationship between sex and height, and sex and weight
+- Sex influences weight directly and also indirectly
+- Unobserved causes and variance are both implicitly included in the graph
+- they don't need to be included, except when they are related to observed features
+
+```{r}
+#| message: false
+sim_height_and_weight <- function(sex, beta_height = c(m = 0.5, f = 0.6), alpha = c(m = 0, f = 0)) {
+    n <- length(sex)
+    height <- 150 + 10 * (sex == "m") + rnorm(n, 0, 5)
+    weight <- alpha[sex] + height * beta_height[sex] + rnorm(n, 0, 5)
+    tibble(sex = sex, height = height, weight = weight)
+}
+
+sim_sex <- sample(c("m", "f"), 1000, replace = TRUE)
+dat <- sim_height_and_weight(
+    sex = sim_sex,
+    beta_height = c(m = 0.5, f = 0.6),
+    alpha = c(m = 0, f = 0)
+)
+
+dat |>
+    ggplot(aes(height, weight)) +
+    geom_point(aes(color = sex), size = 3, shape = 21, stroke = 1)
+```
+
+- we need to stratify by sex
+- we're going to use index variables (e.g. `[1=f, 2=m]`) instead of indicator varriables. They extend to many categories with no change in code
+- they're better for specifying priors, and more intuitive to code
+- We assign each index a different distribution
+- We describe the differences between categories using the whole posterior distributions
+- In this way, we obtain a posterior difference, posterior predictive distribution for the _contrast_
+- It is never appropriate to compare the posterior distributions themselves, you need to sample, compare, and analyze the distribution of differences.
+- about 82% of men are heavier than women
+- RM prefers the term 'block' to 'control'. In this case, we are 'blocking' the association of sex on height, and then generating data.
+
+### Index Variables and Lines
+
+$$
+W_i ~ Normal(u_i, \sigma)
+u_i = \alpha + \beta_{s[i]} (H_i - \bar{H})
+$$
+
+- Centering H makes it so that alpha is the average weight of a person with average height
+- It makes the intercept more sensible. Why anchor at zero? It's arbitrary, especially in the face of no zero height / zero weight persons
+
+### Curves from lines
+
+- HTe relationship between height and weight is nonlinear in children
+- You can use polynomials, but you shouldn't. That's bad. Never do it
+- You can use splines, a species of generalized additive model, to fit flexible lines
+- polynomials create strange symmetries and "explosive uncertainty at edges"
+- No local smoothing, only global smoothing.
+- Any data point can change the estimator any distance from it.
+- They learn too much from the data in regions that are far away
+- better to log transform the dependent $W$
+- Basis splines (B-splines) are built from the addition of many locally trained functions
+
+### Height as a function of age
+
+- IRL, we would rely on bio consensus around this relationship
+- It's weird to say age is a cause, but we're doing it
+- The spline ends up with a reasonable interpolation of the relationship
+
+### Full luxury Bayes
+
+- introduction to multi-level modelling
+- more simulation, fewer models
+- $p(W|do(S))$
+
+## Questions
+
+- How is he making these animations? how could we use animation to communicate uncertainty in presentations?
+- RM discusses the idea of skill development as a feeling of flow. Are you feeling the flow?
+- How to use quap without the rethinking package?
+- Struggling to install the `rethinking` package. How?
+
+## Homework
+
+Considering only the people in `howell` 12 or younger, estimate the causal association between age and weight.
+Assume age influences weight directly, by way of muscle growth and proportions, as well as indirectly, by way of its effect on height.
+
+### 1.A. Draw the DAG
+
+```{mermaid}
+flowchart TD
+    A[Age]
+    H[Height]
+    W[Weight]
+    A --> H
+    A --> W
+    H --> W
+```
+
+### 1.B. Program a Generative Simulation
+
+Our naive generative simulation, with the actual data overlaid for comparison
+```{r}
+#| message: FALSE
+
+library(tidyverse)
+library(ggbeeswarm)
+
+howell <- read_rds("R/unit-02/howell.rds")
+howell_youth <- howell |>
+    filter(age < 13)
+
+sim_youth_from_age <- function(
+    age,
+    height_b_age = 10,
+    weight_b_age = 3,
+    weight_b_height = 0.5,
+    alpha_height = 24,
+    alpha_weight = 4) {
+    n <- length(age)
+    height <- alpha_height + age * height_b_age + rnorm(n, 0, 5)
+    weight <- alpha_weight + height * weight_b_height + age * weight_b_age + rnorm(n, 0, 5)
+    tibble::tibble(age = age, height = height, weight = weight)
+}
+
+age <- sample(0:12, 1000, replace = TRUE)
+
+dat_sim <- sim_youth_from_age(age, height_b_age = 2, weight_b_age = 1, alpha_height = 10)
+
+dat_sim |>
+    ggplot(aes(age, weight)) +
+    geom_beeswarm(shape = 21, size = 3, color = "#0000FF") +
+    geom_point(data = howell_youth, shape = 21, size = 3, color = "tomato", fill = "white") +
+    theme_minimal()
+
+```
+
+### 2. Estimate the total causal effect of each year on weight
+
+```{r}
+library(brms)
+
+howell_youth_normed <- howell_youth |>
+    mutate(
+        height_c = height - mean(height),
+        weight_c = weight - mean(weight)
+    )
+
+m_youth_0 <- brm(
+    data = howell_youth_normed,
+    weight_c ~ 1 + height_c,
+    prior = c(
+        prior(normal(0, 10), class = Intercept),
+        prior(normal(2, 5), class = b),
+        prior(uniform(0, 50), class = sigma, ub = 50)
+    ),
+    iter = 2000, warmup = 1000, chains = 4, cores = 4, seed = 4,
+    file = "R/unit-02/fits/m_youth_0"
+)
+
+
+m_youth_1 <- brm(
+    data = howell_youth_normed,
+    bf(
+        weight ~ 1 + age
+    ),
+    prior = c(
+        prior(normal(0, 10), class = Intercept),
+        prior(normal(.1, 2), class = b, lb = 0),
+        prior(uniform(0, 50), class = sigma, ub = 50)
+    ), iter = 2000, warmup = 1000, chains = 4, cores = 4, seed = 4,
+    file = "R/unit-02/fits/m_youth_1"
+)
+
+pairs(m_youth_1)
+summary(m_youth_1)
+```
+
+### 3. Add sex
+
+```{mermaid}
+flowchart TD
+    A[Age]
+    H[Height]
+    W[Weight]
+    S[Sex]
+    A --> H
+    A --> W
+    H --> W
+    S --> H
+    S --> W
+```
+
+```r
+library(rethinking)
+
+howell_youth_normed <- howell_youth_normed |>
+    mutate(sex = male + 1)
+
+m_youth_2 <- quap(
+    alist(
+        weight ~ dnorm(mu, sigma),
+        mu <- a[sex] + b[sex] * age,
+        a[sex] ~ dnorm(5, 1),
+        b[sex] ~ dunif(0, 10),
+        sigma ~ dexp(1)
+    ),
+    data = howell_youth_normed
+)
+
+d_youth_2 <- tibble(sex = 1:2, age = list(0:12, 0:12)) |>
+    mutate(
+        mu = map2(
+            age, sex,
+            ~ sim(m_youth_2, data = list(age = .x, sex = .y)))
+
+mu_m <- d_youth_2$mu[[2]]
+mu_f <- d_youth_2$mu[[1]]
+mu_c <- mu_m - mu_f
+
+plot(NULL, xlim = c(0, 13), ylim = c(-15, 15), xlab = "age", ylab = "weight difference (b-g)")
+
+shade( apply(mu_c, 2, PI, prob = 0.89), 0:12)
+shade( apply(mu_c, 2, PI, prob = 0.45), 0:12)
+shade( apply(mu_c, 2, PI, prob = .1), 0:12)
+points(0:12,  apply(mu_c, 2, median))
+```
+
+# Unit 03
+
+## Lecture 05: Elemental Confounds
+
+- Happiness and metal bands per capita
+- Estimand, recipe, estimator
+- Statistical recipes must defend against confounding
+- A confound is a feature of the sample that misleads us about the truth
+- The four elemental compounds: fork, pipe, collider, descendant
+
+### The fork
+$\newcommand{\indep}{\perp \!\!\! \perp}$
+
+- three variables, X, Y, Z
+- X and Y are associated,
+- Share a common cause Z
+- If you observe X and Y in a sample, you will observe an association ($X \not\indep Y$)
+- If you stratify by Z, the association will disappear ($X \indep Y | Z$)
+
+```{mermaid}
+flowchart TD
+    Z --> X
+    Z --> Y
+```
+```{r}
+n <- 300
+Z <- rbernoulli(n)
+X <- rnorm(n, 2 * Z - 1)
+Y <- rnorm(n, 2 * Z - 1)
+```
+
+### Marriage Rates
+
+1. estimand: causal effect of marriage rate on divorce rate
+2. scientfic model
+3. statistical analysis
+4. analysis
+
+```{mermaid}
+flowchart TD
+    M[Marriage Rate]
+    A[Age at Marriage]
+    D[Divorce]
+    A --> M
+    A --> D
+    M --> D
+```
+
+What does it mean to stratify by a continuous variable?
+We get different intercepts for each value of Age.
+
+:::{.columns}
+
+:::{.column width=50%}
+
+#### Bad Priors
+
+$D_i \sim Normal(\mu_i, \sigma)$
+
+$\mu_i = \alpha + \beta_M M_i + \beta_A A_i$
+
+$\alpha \sim Normal(0, 10)$
+
+$\beta_M \sim Normal(0, 10)$
+
+$\beta_A \sim Normal(0, 10)$
+
+$\sigma \sim Exponential(1)$
+
+```{r}
+library(tidyverse)
+n <- 20
+
+bad_priors <- tibble(
+    a = rnorm(n, 0, 10),
+    bM = rnorm(n, 0, 10),
+    bA = rnorm(n, 0, 10)
+)
+
+bad_priors |>
+    ggplot() +
+    geom_abline(aes(slope = bA, intercept = a)) +
+    scale_x_continuous(limits = c(-2, 2)) +
+    scale_y_continuous(limits = c(-2, 2))
+```
+
+:::
+
+:::{.column width=50%}
+
+#### Good Priors
+
+$D_i \sim Normal(\mu_i, \sigma)$
+
+$\mu_i = \alpha + \beta_M M_i + \beta_A A_i$
+
+$\alpha \sim Normal(0, .2)$
+
+$\beta_M \sim Normal(0, .5)$
+
+$\beta_A \sim Normal(0, .5)$
+
+$\sigma \sim Exponential(1)$
+
+```{r}
+library(tidyverse)
+n <- 20
+
+good_priors <- tibble(
+    a = rnorm(n, 0, .2),
+    bM = rnorm(n, 0, .5),
+    bA = rnorm(n, 0, .5)
+)
+
+good_priors |>
+    ggplot() +
+    geom_abline(aes(slope = bA, intercept = a)) +
+    scale_x_continuous(limits = c(-2, 2)) +
+    scale_y_continuous(limits = c(-2, 2))
+```
+
+:::
+
+:::
+```{r}
+#| message: FALSE
+library(rethinking)
+library(tidyverse)
+
+data(WaffleDivorce)
+
+d <- WaffleDivorce |>
+    select(D = Divorce, M = Marriage, A = MedianAgeMarriage) |>
+    mutate(across(everything(), rethinking::standardize))
+
+m_DMA <- quap(
+    alist(
+        D ~ dnorm(mu, sigma),
+        mu <- a + bM * M + bA * A,
+        a ~ dnorm(0, 0.2),
+        bM ~ dnorm(0, 0.5),
+        bA ~ dnorm(0, 0.5),
+        sigma ~ dexp(1)
+    ),
+    data = d
+)
+
+m_DM <- quap(
+    alist(
+        D ~ dnorm(mu, sigma),
+        mu <- a + bM * M,
+        a ~ dnorm(0, 0.2),
+        bM ~ dnorm(0, 0.5),
+        sigma ~ dexp(1)
+    ),
+    data = d
+)
+
+precis(m_DMA)
+
+PSIS(m_DMA)
+WAIC(m_DMA)
+
+compare(m_DMA, m_DM, func = PSIS)
+```
+
+#### Simulating Interventions
+
+```{r}
+#| fig-height: 2
+post <- as_tibble(extract.samples(m_DMA))
+
+sim_fix_M <- post |>
+    # Sample A from the data
+    expand_grid(A = sample(d$A, size = 100, replace = TRUE)) |>
+    # Simulate D, fixing M at 0 (exactly the sample mean) and 1 (one sd above)
+    mutate(
+        DM0 = rnorm(n(), a + bM * 0 + bA * A, sigma),
+        DM1 = rnorm(n(), a + bM * 1 + bA * A, sigma),
+        cM = DM1 - DM0
+    )
+
+sim_fix_M |>
+    ggplot(aes(cM)) +
+    geom_density()
+
+```
+
+
+### The Pipe
+
+There is a mediating factor Z that causally sits between X and Y.
+```{mermaid}
+flowchart TD
+    X --> Z
+    Z --> Y
+```
+
+- Plant Fungus example
+- We want to estimate the total effect of an anti-fungal treatment on the height of the plant
+- The effect of the treatment on the height is a pipe, mediated by the effect of the treatment on the fungus
+- The consequences of the treatment itself (not the outcome) should not be included in the model
+- In this case, that means that the estimator $T \to H$ should not control for $T \to F$
+- If you stratify by a consequence of the treatment, it can sometimes induce a 'post-treatment' bias
+- This could bias estimator in either direction
+
+### The Collider
+
+```{mermaid}
+flowchart TD
+    X --> Z
+    Y --> Z
+```
+
+- X and Y are not associated $X \indep Y$
+- X and Y both influence Z
+- once stratified by Z, X and Y _are_ associated $X \not\indep Y | Z$
+- You might think that Z is a cause of _both_ X and Y
+- Colliders come from a number of sources
+
+#### Example
+
+```{mermaid}
+flowchart TD
+    N[N = Newsworthy]
+    A[A = Awarded]
+    T[T = Trustworthy]
+    N --> A
+    T --> A
+```
+
+- Awarded grants must have been sufficiently newsworthy or trustworthy
+- Few grants are high in both
+- This results in a _negative_ association, conditioning on award
+
+```{r}
+library(tidyverse)
+
+grants <- tibble(N = rnorm(500), T = rnorm(500)) |>
+    mutate(
+        A = N + T > 1.5
+    )
+
+grants |>
+    ggplot(aes(N, T)) +
+    geom_point(aes(color = A), shape = 21, size = 3, stroke = 2) +
+    geom_smooth(aes(color = A), se = FALSE, method = "lm") +
+    geom_smooth(color = "black", se = FALSE, method = "lm") +
+    theme_minimal()
+```
+
+- The same phenomenon is at play in the NBA, where the sample of players exists on a frontier of size and skill.
+
+### The Descendant
+
+```{mermaid}
+flowchart LR
+    X --> Z
+    Z --> Y
+    Z --> A[A: The Descendant]
+```
+
+- A isn't a direct mediator, but acts as a proxy for Z when included in a model
+- In this way, including A can replicate another elemental confound by effectively including Z
+
+## Lecture 06: Good and bad controls
+
+- research is like trick shot videos, shows successes and hides failure
+- avoid being clever at all costs, because it's unreliable and opaque
+- we use logic to derive the implications of our causal models
+- what does it mean to use logic to derive conclusions from our causal models?
+- How to deal with unobserved confounds? The most rigorous way is to randomize
+
+:::{.columns}
+
+:::{.column width=50%}
+## No Randomization
+```{mermaid}
+flowchart TD
+    U --> X
+    U --> Y
+    X --> Y
+```
+:::
+
+:::{.column width=50%}
+## With Randomization
+
+```{mermaid}
+flowchart TD
+    R --> X
+    X --> Y
+    U --> Y
+    X .- U
+```
+:::
+:::
+
+### do-calculus
+
+- do-calculus is the set of rules for transforming causal statements into statistical statements
+- for dags, we figure out how to represent $P(Y | do(X))$
+- do-calculus is the worst case: additional assumptions often allow stronger inference
+- do-calculus is the best case: if inference is possible by do-calculus, it does not depend on special assumptions
+
+### The backdoor criterion
+
+- it's a shortcut to applying the results of do-calculus
+- It's a rule for finding a set of variables to stratify by to yield $P(Y | do(X))$
+
+1. identify all paths connecting the treatment ($X$) to the outcome ($Y$)
+2. paths with arrows entering $X$ are backdoor paths
+3. find adjustment set that closes / blocks all backdoor paths
+
+- Basically identify anything that affects the probability or impact of the treatment and stratify by it
+
+```{mermaid}
+flowchart TD
+    U --> Z
+    Z{Z} --> X
+    X ==> Y
+    U --> Y
+```
+
+- Any variable you add to a model as part of an adjustment set will return meaningless coefficients
+```{mermaid}
+flowchart TD
+    A --> Z
+    B --> Z
+    Z --> X
+    Z --> Y
+    X --> Y
+    C --> X
+    C --> Y
+```
+
+- Backdoor paths:
+    + $A \to Z, X$, $B \to Z, Y$
+    + $Z \to X, Y$
+    + $C \to X, Y$
+
+### Education
+
+interested in the effect of grandparent education on grandchildren education
+
+```{mermaid}
+flowchart TD
+    G --> P
+    G --> C
+    P --> C
+    U --> P
+    U --> C
+```
+
+- Pipe: $G \to P \to C$
+- Closing (controlling for) $P$ introduces collider $U \to P, C$ $G \to P$
+- we can estimate the total effect of G on C, but cannot estimate the direct effect
+- do-calc is more than backdoors and adjustment sets
+- Full Luxury Bayes uses all variables, but in separate sub-models instead of single regression
+- It's only a narrow set of problems which can be solved by multiple regression
+
+### Wrong Heuristics
+
+- Anything in the data (YOLO!)
+- Any variables not highly collinear
+- any pre-treatment measurement
+
+### Positive Heuristics
+
+- Don't touch the collider!
+- Don't condition on post-treatment measures
+- Don't just chuck everything in
+- Stratify when it blocks a backdoor path
+
+# Unit 04: Overfitting and MCMC
+
+- Lectures 7 and 8
+- Chapters 7, 8, 9
+
+## Lecture 7: Overfitting
+
+- geocentric epicycles revisited as an example of overfitting
+- Copernican heliocentric model still relied on epicycles to describe non-circular orbits
+- it was no better or worse than ptolemy's geocentric model at predicting the movements of celestial bodies relative to earth
+- there is no empirical justification for preferring simpler models, but there is something there
+- how do we compare causal models against one another?
+- How do we make estimators work? Just because a dag tells you an estimator is possible, doesn't mean it's feasible with your data, or useful for your problem
+
+### Problems of Prediction
+
+- what is the functional relationship between hominid body mass and brain size?
+- we could care about:
+    + what function describes the points?
+    + what function _explains_ the points?
+    + what would happen if we changed the mass of a point?
+    + what is the next observation from the same point?
+
+### Leave-one-out xval
+
+1. drop a point
+2. fit line to remaining
+3. predict dropped point
+4. repeat 1 with next point
+5. score is error on dropped
+
+- we don't want to compare models on the basis of how well they fit the data (in sample), we want to compare them on the basis of how well they predict the data (out of sample)
+
+### lppd
+
+- The lppd is the log pointwise predictive density
+- it's logd because it's more numerically stable
+- it's a measure of cross-validated error
+
+### General concept of overfitting
+
+- more flexible functions tend to do worse out of sample
+- compelling illustration of the power of loo cv showing the dramatic rise of oos error with higher order functions fit
+- This is not universally true, as illustrated with more data
+- you'll often find that there is some optimal level of complexity for a statistical model, which allows the model to 'learn' the 'regular' features of the data generating process that are represented in the sample
+
+### Regularization
+
+- skeptical priors have tighter variance, and therefore reduce flexibility
+- regularization is the process of making models more cautious about interpreting the data by downweighting extreme values in the ovbserved data
+- narrow (regularizing) priors produces worse fit in sample, but can improve out of sample fit, especially for more flexible functional forms, which benefit more from the restraints
+- you can make priors too narrow, compromising both in and oos fit
+
+### Regularizing priors
+
+- for _causal inference_ use science
+- for _pure prediction_ use cross-validation to tune them
+- many tasks are a mix of inference and prediction.
+- there's no need to be perfect, just better
+- the worse prior you could choose is a perfectly flat one
+
+### Prediction Penalty
+
+- The problem with cross-validation is that it becomes computationally infeasible when you do it with large datasets
+- There are multiple methods for estimating penalty from a single model fit
+- AIC is a relic. Use only WAIC now
+- you can do importance sampling (PSIS), or WAIC
+- WAIC, PSIS, CV _measure_ overfitting, Regularization _manages_ overfitting.
+- None of them directly address causal inference
+
+### Choosing models
+
+- don't use predictive criteria to choose causal estimators
+- predictive criteria actually prefer confounds and colliders
+- conditioning on confounds and colliders produces better oos predictions in the absence of intervention, but worse in the presence of intervention
+- here, we revisit the plant growth (treatment, fungus, height) example, where the best predictive model conditions on the post-treatment presence of fungus, which creates an incorrect estimate of the treatment effect
+- do not ever in your life use predictive criteria to choose a causal estimate
+
+### Outliers and Robust Regressions
+
+- there are points that in the data that are more influential on the estimators
+- outliers are observations in the tail of the predictive distributions. They tend to be the most influential
+- outliers should _not_ be dropped
+- it's the model that's wrong, not the data
+- first, we want to quantify the influence of each point using the intuitions of cross validation
+- we use that quantity to identify outliers
+- then we fit a better model, possibly a robust (or mixture) model
+
+### Divorce rate revisited
+
+- Idaho has a very low age of marriage, but also a very low divorce rate
+- Main is the inverse
+- we use the PSIS k-statistic or the WAIC penalty term to quantify influence for each point in the data
+- There's no reason to think that error distributions should be constant across the sample
+- When you mix gaussians with the same mean but different variances, you get a student-t distribution, where the tails are thicker
+- Student-t is less 'surprised' by outliers
+- Must choose a value for the t-distribution's degrees of freedom. RM chooses 2, but it's somewhat arbitrary
+- Consider using t-dist as a default for undertheorized spaces (investments, war)
+
+
+```{r}
+library(tidyverse)
+library(tidybayes)
+library(tidybayes.rethinking)
+library(rstan)
+library(rethinking)
+library(cmdstanr)
+
+
+rstan_options(auto_write=TRUE)
+options(mc.cores=parallel::detectCores())
+
+n = 10
+n_condition = 5
+
+ABC <- tibble(
+    condition = factor(rep(LETTERS[1:5], n)),
+    response = rnorm(n * n_condition, c(0, 1, 2, 1, -1), .5)
+)
+
+ABC
+
+m <- ulam(
+    alist(
+        response ~ normal(mu, sigma),
+        mu <- intercept[condition],
+        intercept[condition] ~ normal(mu_condition, tau_condition),
+        mu_condition ~ normal(0, 5),
+        tau_condition ~ exponential(1),
+
+        log(sigma) <- sigma_intercept[condition],
+        sigma_intercept[condition] ~ normal(0, 1)
+    ),
+    data = ABC,
+    cores = parallel::detectCores(),
+    iter = 2000
+)
+```
+
+```{r}
+summary(m)
+
+mt <- m |> recover_types(ABC)
+
+mt |>
+    spread_draws(intercept[condition], mu_condition, tau_condition) |>
+    median_qi()
+```
+
+
+```{r}
+ABC |>
+    modelr::data_grid(condition) |>
+    add_predicted_draws(m) |>
+    ggplot(aes(x = .prediction, y = condition)) +
+    stat_slab()
+
+```
+
+
+```{r}
+data(WaffleDivorce)
+
+d <- tibble(WaffleDivorce)
+
+ds <- d |>
+    select(
+        state = Loc,
+        a = MedianAgeMarriage,
+        d = Divorce,
+        m = Marriage
+    ) |>
+    mutate(
+        across(
+            c(a, d, m),
+            standardize
+        )
+    )
+
+ds |>
+    ggplot(aes(a, d)) +
+    geom_point(size = 3, stroke = 1, shape = 21)
+```
+
+
+```{r}
+#| warn: FALSE
+#| message: FALSE
+
+m5_1 <- quap(
+    alist(
+        d ~ dnorm(mu, sigma),
+        mu <- alpha + b_a * a,
+        alpha ~ dnorm(0, 0.2),
+        b_a ~ dnorm(0, 0.5),
+        sigma ~ dexp(1)
+    ),
+    data = ds
+)
+```
+
+
+```{r}
+library(modelr)
+
+ds |>
+    data_grid(
+        a = seq_range(a, n = 5),
+        m = c(-2, 0, 2)
+    ) |>
+    add_linpred_draws(m5_1) |>
+    ggplot() +
+    stat_lineribbon(aes(x = a, y = .linpred), color = "goldenrod") +
+    scale_fill_grey() +
+    geom_point(aes(x = a, y = d), data = ds, shape = 21, stroke = 1, color = "goldenrod") +
+    theme_minimal()
+```
+
+
+## Lecture 8: Markov Chain Monte Carlo
+
+- For complex statistical models that represent reality, integrating the bayesian denominator demands the use of random process
+- Examples of "real latent modelling problems":
+    + Test result, student, knowledge, questions,
+    + social networks, interactions, modelling relationships
+- Many unknowns, nested relationships between them, bounded outcomes combine to create very difficult calculations
+- interesting that bounded outcomes are noted as a specific complexifying factor
+- This lecture unpacks the 'analyze the data' step of drawing the bayesian owl
+
+### Computing the posterior
+
+- Analytical approach (often impossible)
+- Grid approximation (very intensive)
+- Quadratic approximation (limited)
+- MCMC (complicated)
+
+### Parable of King Markov
+
+- king markov rules the _Metropolis Archipelago_
+- he agrees to spend time on them in proportion to their populations
+- markov starts on a random island
+- He flips a coin to select a "proposed island"
+- he moves to the proposed island with probability $\frac{pop_{proposed}}{pop_{current}}$
+- eventually, the proportion of time he spends on each island converges to the proportion of metropolans residing on each
+
+```{r}
+library(tidyverse)
+
+metropolis_archipelago <- tibble(
+    island_id = 1:5,
+    population = c(100, 200, 400, 800, 1600)
+)
+
+```
+
+- Ariana rosenbluth basically invented computer calculation to program the so-called metropolis algorithm
+- Markov Chain Monte Carlo is a diverse family of algorithms
+- The best modern methods use something called gradients
+- The issue with the Rosenbluth (Metropolis) algorithm is that it takes a long time because you have to test and reject a lot of proposals in a multi-dimensional probability space
+- Hamiltonian Monte Carlo needs _gradients_, which represent the n-dimensional 'slope' of the posterior distribution
+- We use auto-diff, or automatic differentiation, to find the **DERIVATIVE OF CODE**?!?!
+- This is used all over in machine learning applications
+- We're going to use Stan (stan does the auto-diff)
+- Stan is named after Stanislav Ulam, another mathematician who worked on the MANIAC project like Rosenbluth
+
+### Wine Scores
+
+- Wine quality, score, judge, wine origin example (new jersey is a great wine-making area)
+- Going to use it as an example to illustrate item-response modelling
+
+
+```{mermaid}
+flowchart TD
+    Q[Quality]
+    S[Score]
+    J[Judge]
+    X[Wine Origin]
+    Z[Judge Origin]
+    X --> Q
+    Q --> S
+    Z --> J
+    J --> S
+    X .-> S
+```
+
+
+```{r}
+library(rethinking)
+
+data(Wines2012)
+
+d <- Wines2012
+
+dm <- d |>
+    tibble() |>
+    mutate(
+        across(c(judge, flight, wine), fct_inorder),
+        across(c(matches("amer")), function(x) {
+            as.integer(x + 1)
+        }),
+        score = standardize(score)
+    ) |>
+    rename(
+        # For both cols below,
+        #   1 represents a non-american wine or judge
+        #   2 represents an american wine or judge
+        wine_origin = wine.amer,
+        judge_origin = judge.amer
+    )
+```
+
+
+
+```{r}
+#| warn: false
+#| message: false
+
+mod_wine_1 <- ulam(
+    alist(
+        score ~ normal(mu, sigma),
+        mu <- quality[wine],
+        quality[wine] ~ normal(0, 1),
+        sigma ~ exponential(1)
+    ),
+    data = dm,
+    chains = 4,
+    cores = parallel::detectCores()
+)
+
+```
+
+
+```{r}
+library(tidybayes)
+library(tidybayes.rethinking)
+library(modelr)
+
+mod_wine_1_t <- mod_wine_1 |> recover_types(dm)
+
+dm |>
+    distinct(wine, wine_origin) |>
+    ungroup() |>
+    add_linpred_draws(mod_wine_1_t) |>
+    ggplot(aes(x = .linpred, y = wine)) +
+    facet_grid(wine_origin ~ ., scales = "free_y", space = "free_y") +
+    stat_slab(aes(fill = wine_origin)) +
+    theme_minimal()
+
+mod_wine_1_t |>
+    spread_draws(quality[wine]) |>
+    median_hdi(.width = 0.89)
+```
+
+- good chains look like hairy caterpiggles,
+- bad chains look like they're exploring different distributions
+- often, with hamiltonian MC, you only need a couple of hundred draws
+- trace rank plots the rank order of the values for each chain across each sample
+- R-hat is a ratio of variances. As total variance shrinks to the average variance within chains, R-hat approaches 1
+- There's no magical value of R-hat that guarantees convergence, but in general you want to be alarmed by values over 1.1
+- n_eff is the number of effective samples, answering the question "how long would the chain be if each sample was independent of the one before?". When samples are autocorrelated, you have fewer effective samples.
+- sometimes Stan does better than perfectly random, making n_eff higher than n
+
+
+```{r}
+
+mod_wine_2 <- ulam(
+    alist(
+        score ~ normal(mu, sigma),
+        mu <- discrim[judge] * (
+            quality[wine] +
+            origin_effect[wine_origin] -
+            harshness[judge]
+        ),
+
+        quality[wine]              ~ normal(0, 1),
+        origin_effect[wine_origin] ~ normal(0, 1),
+        harshness[judge]           ~ normal(0, 1),
+        discrim[judge]             ~ dexp(1),
+        sigma                      ~ dexp(1)
+
+    ),
+    data = dm,
+    chains = 4,
+    cores = parallel::detectCores()
+)
+```
+
+
+
+```{r}
+mod_wine_2_t <- mod_wine_2 |> recover_types(dm)
+
+mod_wine_2_t |>
+    spread_draws(origin_effect[wine_origin]) |>
+    median_hdci(.width = 0.89)
+```
+
+```{r}
+dplt <- bind_rows(
+    mod_wine_1_t |>
+        spread_draws(quality[wine]) |>
+        mutate(model = "Q[W]"),
+    mod_wine_2_t |>
+        spread_draws(quality[wine]) |>
+        mutate(model = "D[J] * (Q[W] + O[X] -H[J])")
+)
+
+dplt |>
+    mutate(side = case_when(model == "Q[W]" ~ "top", TRUE ~ "bottom")) |>
+    ggplot(aes(y = quality, x = model)) +
+    stat_halfeye(aes(fill = model, side = side), scale = 1.2) +
+    theme_minimal() +
+    facet_grid(. ~ wine)
+```
+
+```{r}
+dplt <- mod_wine_1_t |>
+    spread_draws(quality[wine], sigma)
+
+dplt |>
+    ggplot(aes(.iteration, quality)) +
+    facet_grid(wine ~ .) +
+    geom_path(aes(color = .chain, group = .chain)) +
+    theme_minimal()
+```
+
+```{r}
+compare(mod_wine_1, mod_wine_2, func = PSIS)
+```
+
+```{r}
+library(patchwork)
+
+dplt <- mod_wine_2_t |>
+    spread_draws(origin_effect[wine_origin]) |>
+    ungroup() |>
+    mutate(wine_origin = fct_inorder(
+        case_when(
+            wine_origin == 1L ~ "European",
+            TRUE ~ "American"
+        )
+    ))
+
+traces <- dplt |>
+    ggplot(aes(origin_effect, .iteration)) +
+    geom_path(aes(color = .chain, group = .chain)) +
+    facet_grid(. ~ wine_origin) +
+    scale_y_reverse() +
+    viridis::scale_color_viridis(option = "turbo", guide = "none") +
+    labs(x = NULL, y = NULL) +
+    theme_tidybayes() +
+    theme(
+        axis.text = element_blank(),
+        axis.ticks = element_blank()
+    )
+
+distributions <- dplt |>
+    ggplot(aes(origin_effect)) +
+    stat_density(aes(color = .chain, group = .chain), geom = "line", position = position_dodge(width = 0)) +
+    facet_grid(. ~ wine_origin) +
+    viridis::scale_color_viridis(option = "turbo", guide = "none") +
+    labs(x = NULL, y = NULL) +
+    theme_tidybayes() +
+    theme(
+        axis.text = element_blank(),
+        axis.ticks = element_blank(),
+        strip.text = element_blank()
+    )
+
+traces / distributions +
+    plot_layout(heights = c(5, 3))
+
+```
+
+```{r}
+dplt_2 <- mod_wine_2_t |>
+    gather_draws(origin_effect[wine_origin], sigma) |>
+    mutate(
+        wine_origin = case_when(
+            wine_origin == 1L ~ "European",
+            TRUE ~ "American"
+        ), 
+        param = case_when(
+            .variable == "sigma" ~ .variable, 
+            TRUE ~ glue::glue("{.variable}[{wine_origin}]")
+        )
+    )
+
+traces <- dplt_2 |>
+    ggplot(aes(.value, .iteration)) +
+    geom_path(aes(color = .chain, group = .chain)) +
+    facet_grid(. ~ param, scales = "free_x") +
+    scale_y_reverse() +
+    viridis::scale_color_viridis(option = "turbo", guide = "none") +
+    labs(x = NULL, y = NULL) +
+    theme_tidybayes() +
+    theme(
+        axis.text = element_blank(),
+        axis.ticks = element_blank()
+    )
+
+distributions <- dplt_2 |>
+    ggplot(aes(.value)) +
+    stat_density(aes(color = .chain, group = .chain), geom = "line", position = position_dodge(width = 0)) +
+    facet_grid(. ~ param, scales = "free") +
+    viridis::scale_color_viridis(option = "turbo", guide = "none") +
+    labs(x = NULL, y = NULL) +
+    theme_tidybayes() +
+    theme(
+        axis.ticks = element_blank(),
+        strip.text = element_blank()
+    )
+
+traces / distributions +
+    plot_layout(heights = c(5, 3))
+```
+
+```{r}
+dplt_3 <- mod_wine_2_t |>
+    spread_draws(origin_effect[wine_origin]) |>
+    mutate(
+        wine_origin = case_when(
+            wine_origin == 1L ~ "European",
+            TRUE ~ "American"
+        )
+    ) |>
+    compare_levels(origin_effect, by = wine_origin) 
+
+
+raw_diff <- dm |>
+    group_by(wine_origin) |>
+    summarize(mean_score = mean(score)) |>
+    mutate(
+        wine_origin = case_when(
+            wine_origin == 1L ~ "European",
+            TRUE ~ "American"
+        )
+    ) |>
+    pivot_wider(names_from = wine_origin, values_from = mean_score) |>
+    mutate(`European - American` = European - American)
+
+dplt_3 |>
+    ggplot(aes(origin_effect)) + 
+    stat_halfeye() + 
+    geom_vline(xintercept = raw_diff$`European - American`, color = "goldenrod") 
+```
+
+### In Closing
+
+- desktop MCMC has created a revolution in the accessibility of Bayesian analytical methods.
+- It has enabled basically anyone to make complex models, like the item-response model used above to assess the effect of a wine's origin on its quality.
+
+# Unit 4: Modelling Events and non-linearity
+
+## Lecture 09: Modeling Events
+
+- don't have to understand it all at once
+- need to maintain flow 
+- the topic for this lecture is a historical dataset of california college admissions
+- in the 70s, cal decided that university education should be available to everyone
+- estimation of discrimination
+
+```{r}
+library(tidyverse)
+data(UCBadmit, package = "rethinking")
+
+d_admit <- UCBadmit |>
+    as_tibble() 
+
+d_admit
+```
+
+- events are discrete and unordered outcomes
+- we're going to measure lots of stuff on the log odds scale
+
+```{dot}
+digraph D {
+    gender -> {department, admission};
+    department -> admission;
+}
+```
+
+- we can't understand the effect of gender on the probability of addmission unless we understand the mediating department
+- we are concerned about different kinds of discrimination: direct discrimination in the screening and assessment process, structural discrimination by way of influences on choices / dispositions
+- total discrimination is the sum of the two types
+- total can be estimated with fairly weak assumptions, whereas direct and structural require stronger assumptions
+
+```{r}
+library(tidyverse)
+library(rethinking)
+
+acceptance_rates <- matrix(c(.1, .3, .1, .3), nrow = 2)
+
+d_sim_ucb <- tibble(g = sample(1:2, 1000, replace = TRUE)) |>
+    mutate(
+        d = rbern(n(), .3 + (g - 1) * .5) + 1,
+        a = rbern(n(), acceptance_rates[d, g])
+    )
+
+```
+
+### Generalized Linear Models
+
+- lms we've seen so far are special cases of glms 
+- glms output an expected value which is some function of additive sum
+- we call the function the link function, as it links the output to the target distribution
+- there are conventional choices of link functions; the work comes in choosing target distributions for the estimator
+- these are all in the exponential distribution family because they can all be constructed by combining exponential distributions
+- the binomial distribution is a distribution of counts with a known maximum
+- the poisson distribution is a special case of the binomial where the maximum is unknown
+- the gamma distribution adds exponential distributions together. It arises when an output is the result of several joint exponential processes. 
+- normal distribution (gaussian) is for large means. Once you've arrived at the normal, any subsequent or combined process will be normal
+
+### Logit
+
+- bernoulli / binomial models most often use logit link
+- logit(p_i) = log odds = log (p_i / (1 - p_i)) = q_i
+- logit-1(q_i) = exp(q_i) / (1 + exp(q_i))
+- logit link is a harsh tranformation
+- logit(p_i) = a + Bx_i
+
+### Logistic priors
+
+- anything above +4 is almost always, below -4 is almost never
+- ok, so you have to set priors on the model parameters, which are not transformed 
+- we must be mindful, therefore, of the effect of the transformation on the meaning of the priors
+
+### Models
+
+- total effect: logit(p_i) = a[g_i]
+- direct effect: logit(p_i) = a[g_i, d_i]
+
+```{r}
+mgd.s <- ulam(
+    alist(
+        a ~ bernoulli(p), 
+        logit(p) <- alpha[g, d],
+        matrix[g, d]:alpha ~ normal(0, 1)
+    ),
+    data = d_sim_ucb, 
+    chains = 4, 
+    cores = parallel::detectCores()
+)
+
+precis(mgd.s, depth = 3)
+```
+
+```{r}
+data(UCBadmit, package = "rethinking")
+d_admit <- UCBadmit |>
+    as_tibble() |>
+    transmute(
+        d = dept, 
+        g = applicant.gender, 
+        n = applications, 
+        a = admit
+    )
+
+mg.d <- ulam(
+    alist(
+        a ~ binomial(n, p),
+        logit(p) <- alpha[g],
+        alpha[g] ~ normal(0, 1)
+    ), 
+    data = d_admit, 
+    chains = 4, cores = parallel::detectCores()
+)
+
+traceplot_ulam(mg.d)
+
+mgd.d <- ulam(
+    alist(
+        a ~ binomial(n, p),
+        logit(p) <- alpha[g, d],
+        matrix[g, d]:alpha ~ normal(0, 1)
+    ),
+    data = d_admit, 
+    chains = 4, 
+    cores = parallel::detectCores()
+)
+traceplot_ulam(mgd.d)
+
+precis(mgd.d, depth = 3)
+```
+
+
+```{r}
+library(tidybayes)
+library(tidybayes.rethinking)
+library(modelr)
+
+mg.dt <- mg.d |>
+    recover_types(d_admit)
+
+mg.dt |>
+    spread_draws(alpha[g]) |>
+    mutate(p = inv_logit(alpha)) |>
+    compare_levels(p, by = g) |>
+    ggplot(aes(p, g)) + 
+    stat_halfeye()
+
+```
+
+
+```{r}
+mgd.dt <- mgd.d |>
+    recover_types(d_admit)
+
+mgd.dt |>
+    spread_draws(alpha[g, d]) |>
+    mutate(p = inv_logit(alpha)) |>
+    group_by(d) |>
+    compare_levels(p, by = g) |>
+    ggplot(aes(p, d)) + 
+    stat_halfeye() + 
+    labs(title = "P(Admit | M) - P(Admit | F) by Department")
+```
+
+is there evidence for discrimination? 
+There are big structural effects, but: 
+
+1. distribution of applications between depts can be a consequence of discrimination, and
+2. confounds are likely. 
+
+### Survival Analysis
+
+- counts are often modeled as time-to-event
+- tricky, because we cannot ignore censored cases
+- left-censored cases are when we don't know when time started
+- right censored cases happen when observation ended before the event
+- ignoring censored cases creates inferential error
+- what's a good distribution for days to event? 
+  + exponential for simple processes
+  + gamma for more complex processes
+- example is austin cat adoption
+  + for observed adoptions, $D_i \sim Exponential(\lambda_i)$
+  + for censored cases (cats not adopted by end or cats who died in shelter), we need to address complementary probability that they have _not_ been adopted by time i
+
+Two cases
+
+$$
+\begin{equation}
+D_i | Adopted \sim Exponential(\lambda_i) \\
+D_i | Not Adopted \sim Exponential - CCDF(\lambda_i) 
+\end{equation}
+$$
+
+
+
+```{r}
+data(AustinCats, package = "rethinking")
+d_cats <- AustinCats |>
+    as_tibble() |>
+    transmute(
+        days = days_to_event, 
+        adopted = as.integer(out_event == "Adoption"), 
+        black = as.integer(color == "Black") + 1
+    )
+
+m_cats <- ulam(
+    alist(
+        days | adopted == 1 ~ exponential(lambda),
+        days | adopted == 0 ~ custom(exponential_lccdf(!Y | lambda)),
+        lambda <- 1.0 / mu,
+        log(mu) <- alpha[black], 
+        alpha[black] ~ normal(0, 1)    
+    ), 
+    data = d_cats, 
+    chains = 4, 
+    cores = parallel::detectCores()
+)
+
+d_cats |>
+    data_grid(
+        black, adopted
+    )
+
+```

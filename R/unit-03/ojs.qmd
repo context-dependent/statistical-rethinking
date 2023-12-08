@@ -1,0 +1,15 @@
+---
+format: html
+---
+```{r}
+library(ggplot2)
+
+data(mpg)
+
+ojs_define(rdata = mpg)
+```
+
+
+```{ojs}
+
+```

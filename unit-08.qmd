@@ -1,0 +1,88 @@
+# Unit 08: Social Networks and Gaussian Processes
+
+## Lectre 15: Social Networks
+
+- nicaraguan communities and their social networks
+- lessons about human collaboration
+- what motivates sharing and collaboration? 
+- reciprocity? 
+- data is from arang dak: one year of food transfers among 25 households
+- 2871 observed transfers between households
+- how much sharing is explained by reciprocity? how much by generalized giving? 
+- There is a long history of bad ways to analyze these types of data
+
+
+```{dot}
+digraph mrdag {
+    graph [rankdir=LR, layout = circo, splines = line, arrowhead = vee, arrowsize = 0.2]
+
+    node [shape = plaintext, height=0.3, width = 0.3, fontface = italic]
+    H_a [label = "$H_A$"]
+    H_b [label = "$H_B$"]
+    G_ab [label = "$G_{AB}$"]
+    T_ab [label = "$T_{AB}$"]
+    T_ba [label = "$T_{BA}$"]
+
+    edge [arrowsize = .2]
+    H_a -> G_ab
+    H_b -> G_ab
+    H_a -> T_ab
+    H_b -> T_ba
+    H_a -> T_ba
+    H_b -> T_ab
+    T_ab -> G_ab
+    T_ba -> G_ab
+
+}
+```
+
+- On account of the complexity, RM recommends simulation
+
+```{r}
+library(igraph)
+
+n <- 25
+dyads <- t(combn(n, 2))
+friends <- rbinom(ncol(dyads), 1, .1))
+alpha <- -3
+p_tie <- matrix(0, n, n)
+p_tie[dyads[friends == 1, ]] <- 1
+p_tie[dyads[friends == 1, c(2, 1)]] <- 1
+p_tie[p_tie == 0] <- exp(alpha) / (1 + exp(alpha))
+diag(p_tie) <- 0
+sim_tie <- matrix(rbinom(length(p_tie), 1, p_tie), ncol = n)
+
+lam_gift <- function(tie) {
+    .5 + 1.5 * tie
+}
+
+gifts <- rpois(length(sim_tie), exp(lam_gift(sim_tie))) |> matrix(ncol = n)
+sng <- graph_from_adjacency_matrix(sim_tie, mode = "directed")
+lx <- layout_nicely(sng)
+plot(sng, layout = lx, vertex.size = 10, edge.arrow.size=.5, edge.arrow.width=.4, edge.curved=.2)
+```
+
+$$
+\begin{align*}
+    G_{AB, BA} &\sim \text{Poisson}(\lambda_{AB, BA}) \\
+    \text{log}(\lambda_{AB, BA}) &= \alpha + T_{AB, BA} \\
+    \begin{pmatrix}
+        T_{AB} \\ 
+        T_{BA}
+    \end{pmatrix} &\sim 
+    \text{MVNormal}\begin{pmatrix}
+        \begin{bmatrix}
+            0 \\
+            0
+        \end{bmatrix} & 
+        \begin{bmatrix}
+            \sigma^2 & \rho \sigma^2 \\
+            \rho \sigma^2 & \sigma^2
+        \end{bmatrix}
+    \end{pmatrix} \\
+    \rho &\sim \text{LKJCorr}(2) \\
+    \sigma &\sim \text{HalfCauchy}(2.5) \\
+    \alpha &\sim \text{Normal}(0, 1)
+\end{align*}
+$${#eq-ties}
+

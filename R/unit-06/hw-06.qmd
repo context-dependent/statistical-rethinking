@@ -1,0 +1,235 @@
+# Unit 6 homework
+
+## 1. Prior predictive simulation
+
+For this problem, we simulate the prior predictive distribution for tank survival probability. Using the following model: 
+
+$$ 
+\begin{align*}
+logit(p_j) &= \alpha_j \\
+\alpha_j &\sim \text{Normal}(\overline{\alpha}, \sigma) \\
+\overline{\alpha} &\sim \text{Normal}(0, 1) \\
+\sigma &\sim \text{Exponential}(\tau)
+\end{align*}
+$${#eq-priors}
+
+We can simulate the prior predictive distribution by first sampling $\sigma$ from an exponential distribution with rate $\tau$, then sampling $\overline{\alpha}$ from a normal distribution with mean 0 and standard deviation 1, and finally sampling $\alpha_j$ from a normal distribution with mean $\overline{\alpha}$ and standard deviation $\sigma$. We can then calculate $p_j$ by applying the logistic function to $\alpha_j$. 
+
+```{r}
+library(dplyr)
+library(tibble)
+library(ggplot2)
+library(distributional)
+library(ggdist)
+
+logistic <- function(alpha) {
+    exp(alpha) / (1 + exp(alpha))
+}
+
+sim_prior <- function(n, tau) {
+    sigma <- dist_exponential(tau)
+    a_bar <- dist_normal(0, 1)
+
+    prior <-
+        tibble(
+            sigma = unlist(generate(sigma, n)),
+            a_bar = unlist(generate(a_bar, n))
+        ) |>
+        mutate(
+            a = dist_normal(a_bar, sigma) |> generate(1) |> unlist(),
+            p = logistic(a)
+        )
+
+    prior
+}
+
+priors <-
+    tibble(tau = c(0.1, 1, 10)) |>
+    mutate(
+        prior = purrr::map(tau, ~ sim_prior(1000, .x))
+    ) |>
+    tidyr::unnest(prior)
+
+priors |>
+    ggplot(aes(y = factor(tau), x = p)) +
+    stat_halfeye()
+
+```
+
+In the above plot, we can see that the higher the value of $\tau$, the more spread out the prior predictive distribution is. This makes sense, since $\tau$ is the rate parameter of the exponential distribution, and the higher the rate parameter, the more spread out the distribution is, and so the greater the average prior for $\sigma$. 
+
+At $\tau = 1$, the prior predictive is nearly flat. 
+Raising $\tau$ to 10 makes the prior predictive distribution slightly more peaked, but still quite evenly spread.
+Lowering $\tau$ to 0.1 pushes the prior predictive distribution towards the extremes, with a higher probability of very low and very high survival probabilities.
+
+## 2. Predation, size, and survival
+```{r}
+library(rethinking)
+library(arrow)
+data(reedfrogs)
+
+d <- reedfrogs |>
+    as_tibble() |>
+    mutate(tank = row_number())
+
+d |> write_parquet("R/unit-06/reedfrogs.parquet")
+```
+
+
+```{r}
+m0 <- ulam(
+    alist(
+        surv ~ binomial(density, p),
+        logit(p) <- a[tank],
+        a[tank] ~ normal(a_bar, sigma),
+        a_bar ~ normal(0, 1.5),
+        sigma ~ exponential(1)
+    ),
+    data = d, chains = 4, log_lik = TRUE
+)
+
+precis(m0, depth = 2)
+```
+
+The above model is the multilevel "varying effects" model from the book. 
+The task in this question is to extend that model to estimate the causal effects of predation and size on survival. 
+
+
+```{r}
+m1 <- ulam(
+    alist(
+        surv ~ binomial(density, p),
+        logit(p) <- a[tank] + b[pred, size],
+        a[tank] ~ normal(a_bar, sigma),
+        a_bar ~ normal(0, 1.5),
+        sigma ~ exponential(1),
+        matrix[pred, size]:b ~ normal(0, 1)
+    ),
+    data = d, chains = 4, log_lik = TRUE
+)
+
+precis(m1, depth = 3, pars = c("b", "sigma"))
+```
+
+The above model adds a parameter vector $b$ that includes an intercept for each combination of predation and size.
+`rethinking`'s recent update to use `cmdstanr` rather than `rstan` means that the model is much faster to fit, but that it is no longer possible to use `tidybayes.rethinking` to extract posterior samples. 
+Below, I'm going to use brms to fit the model instead, relying on guidance from [the 'official' conversion](https://bookdown.org/content/4857/models-with-memory.html#example-multilevel-tadpoles). 
+
+
+```{r}
+library(brms)
+
+# a basic model
+
+m06_01 <- brm(
+    data = d,
+    family = binomial,
+    surv | trials(density) ~ (1 | tank),
+    prior(normal(0, 1.5), class = Intercept),
+    iter = 2000, warmup = 1000, chains = 4, cores = 4,
+    seed = 13,
+    file = "m06_01.stan"
+)
+```
+
+```{r}
+m06_02 <- brm(
+    data = d,
+    family = binomial,
+    surv | trials(density) ~ 1 + (1 | tank),
+    prior = c(
+        prior(normal(0, 1.5), class = Intercept),
+        prior(exponential(1), class = sd)
+    ),
+    iter = 2000, warmup = 1000, chains = 4, cores = 4,
+    sample_prior = "yes",
+    file = "R/unit-06/m06_02"
+)
+
+brms::stancode(m06_02)
+```
+
+```{r}
+mod <- cmdstanr::cmdstan_model("R/unit-06/m0602.stan")
+d_stan <- tidybayes::compose_data(d)
+d_stan$n_tanks <- nrow(d)
+
+fit <- mod$sample(
+    data = d_stan,
+    chains = 4,
+    parallel_chains = 4,
+    iter_warmup = 1000,
+    iter_sampling = 2000,
+    save_warmup = FALSE,
+    refresh = 0
+)
+
+fit |>
+    tidybayes::spread_draws(tank_mean[tank], sigma) |>
+    sample_n(1000) |>
+    ungroup() |>
+    mutate(p = logistic(tank_mean)) |>
+    ggplot(aes(y = factor(tank), x = p)) +
+    stat_halfeye() +
+    geom_point(
+        data = d,
+        aes(y = factor(tank), x = propsurv),
+        shape = 21, size = 3, colour = "red"
+    ) +
+    geom_vline(
+        xintercept = mean(d$propsurv),
+        colour = "grey", linetype = "dashed"
+    )
+```    
+
+
+### The actual model
+
+```{r}
+mod_02 <- cmdstanr::cmdstan_model("R/unit-06/m0602b.stan")
+
+fit <- mod_02$sample(
+    data = d_stan,
+    chains = 4,
+    parallel_chains = 4,
+    iter_warmup = 1000,
+    iter_sampling = 2000,
+    save_warmup = FALSE,
+    refresh = 0
+)
+
+tidybayes::get_variables(fit)
+
+fit |>
+    tidybayes::recover_types(d) |>
+    tidybayes::spread_draws(b[pred, size], logit_p[tank], p[tank]) |>
+    sample_n(1000) |>
+    ggplot(aes(x = b, y = pred)) +
+    facet_wrap(~size, ncol = 1) +
+    stat_halfeye()
+
+
+sample_draws <- fit |>
+    tidybayes::spread_draws(b[pred, size], p[tank]) |>
+    select(-b) |>
+    tidyr::pivot_wider(names_from = pred, values_from = p) |>
+    mutate(
+        pred_diff = pred - no
+    )
+
+grid <- d |>
+    modelr::data_grid(tank, pred, size) |>
+    left_join(sample_draws, by = c("tank", "pred", "size"))
+
+grid |>
+    mutate(
+        .mu = tank_mean + b,
+        .pred = rnorm(n(), .mu, sigma_tank_offset),
+        .p = logistic(.pred)
+    ) |>
+    ggplot(aes(x = .p, y = size)) +
+    stat_halfeye(aes(fill = pred))
+
+fit$cmdstan_summary()
+```
+

@@ -1,0 +1,102 @@
+# Unit 7: More levels
+
+## Lecture 1: Multilevel adventures
+
+- a key distinction between clusters and features
+- Add clusters: more index variables, more pop priors
+- Add features: more regression coefficients, more regression priors
+- Varying effects are a way to quantify _unmeasured_ features. 
+- From a predictive perspective, it is helpful, but from an inferential perspective, it can be problematic.
+- varying effects are great, but how do you use more than one cluster at the same time? 
+- How do we make predictions for new clusters? 
+
+### Contraceptive use in Bangladesh
+
+- identifying the determinants of contraceptive use in Bangladesh in the 1980s
+
+Data: 
+
+$C$: contraceptive use
+$D$: district
+$A$: age (of the subject)
+$K$: number of children
+$U$: urbanity
+
+```{dot}
+digraph mrdag {
+    graph [rankdir=LR, layout = neato, splines = line, arrowhead = vee, arrowsize = 0.2]
+
+    node [shape = plaintext, height=0.3, width = 0.3, fontface = italic]
+    A
+    K
+    U
+    C
+    D
+
+    node [shape = circle, height = 0.3, width = 0.3, fontface = italic, color = gray, fontcolor = gray]
+    F
+
+    edge [arrowsize = .2]
+    A -> C
+    K -> C
+    U -> C
+    D -> C
+    D -> U
+    D -> K
+    F -> C [color = gray]
+    F -> K [color = gray]
+    A -> K
+
+}
+```
+
+- $F$ (family) is a feature that we don't observe, but which could influence both $K$ and $C$.
+- we're goig to cluster by $D$ (district) to start
+- Often a decent approach, starting with the varying effects, ensuring they work, and then adding features. 
+
+### Varying intercept on district
+
+$$
+\begin{align*}
+C_i &\sim \text{Bernoulli}(p_i) \\
+\text{logit}(p_i) &= \alpha_{D[i]} \\
+\alpha_D &\sim \text{Normal}(\overline{\alpha}, \sigma) \\
+\overline{\alpha} &\sim \text{Normal}(0, 1) \\
+\sigma &\sim \text{Exponential}(1)
+\end{align*}
+$${#eq-centered}
+
+### Priors inside priors
+
+- $\alpha_D ~ \sim N(\overline{\alpha}, \sigma)$ generates a prior over a prior. This is conceptually useful, but can be challenging to sample from. 
+- Instead, we can reformulate this as $\alpha_D = \overline{\alpha} + z_D \sigma$, where $z_D \sim N(0, 1)$
+
+Applied to the above model: 
+
+$$
+\begin{align*}
+C_i &\sim \text{Bernoulli}(p_i) \\
+\text{logit}(p_i) &= \alpha_{D[i]} \\
+\alpha_D &= \overline{\alpha} + z \sigma \\
+z_D &\sim \text{Normal}(0, 1) \\
+\overline{\alpha} &\sim \text{Normal}(0, 1) \\
+\sigma &\sim \text{Exponential}(1)
+\end{align*}
+$${#eq-non-centered}
+
+@eq-centered and @eq-non-centered are equivalent mathematically, but the latter is easier for Stan to sample from, because it doesn't have to sample from a prior over a prior.
+
+## Lecture 2: Correlated Features
+
+- In the previous model, rural and urban can be thought of as features of the district. 
+- Contraceptive use in urban areas of a district is correlated with contraceptive use in rural areas of the same district, but our previous model doesn't account for this, and so overestimates uncertainty. 
+- We need multi-dimensional priors to account for the correlation. 
+    + for One feature, we need a 1D prior
+    + for two features, we need a 2D prior
+    + for n-features, we need an n-dimensional prior
+- Correlations are hard to learn, so we need a lot of data to learn them. 
+- Basically, we collapse the n priors into an n-dimensional multivariate normal prior. 
+
+$$
+\left[\alpha_j, \beta_j \right] \sim \text{MVNormal}\left(\left[\overline{\alpha}, \overline{\beta}\right], \left[\sigma, \tau\right] \right)
+$$

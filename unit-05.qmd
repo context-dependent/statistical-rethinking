@@ -1,0 +1,97 @@
+# Modelling Events
+
+
+## Lecture 10: Counts and Hidden Confounds
+
+- previously, we examined gendered bias in admissions at UC Berkley
+- in real-world examples, there are always confounding variables
+- in this case, applicant _ability_, a latent variable, is one
+
+```{r}
+library(rethinking)
+library(tidyverse)
+
+set.seed(12)
+
+n <- 2000
+
+# accceptance rates [ability][dept, gender]
+acceptance_rate <- list(
+    matrix(c(.1, .1, .1, .3), nrow = 2),
+    matrix(c(.3, .3, .5, .5), nrow = 2)
+)
+
+sim <- tibble(g = sample(1:2, size = n, replace = TRUE)) |>
+    mutate(
+        u = rbern(n, prob = .1),
+        d = rbern(n, prob = case_when(g == 1 ~ u, TRUE ~ .75)) + 1
+    )
+
+p <- integer(n)
+
+for(i in seq_len(n)) {
+    p[i] <- acceptance_rate[[sim$u[i] + 1]][sim$d[i], sim$g[i]]
+}
+
+sim <- sim |>
+    mutate(a = rbern(n, p))
+
+sim
+```
+
+- in the simulated data, elite ability overcomes discrimination, and there is no discrimination in department 2
+
+
+```{r}
+m1 <- ulam(
+    alist(
+        a ~ bernoulli(p), 
+        logit(p) <- alpha[g],
+        alpha[g] ~ normal(0, 1)
+    ),
+    data = sim, chains = 4, cores = 4
+)
+
+trankplot(m1)
+traceplot(m1)
+
+m2 <- ulam(
+    alist(
+        a ~ bernoulli(p), 
+        logit(p) <- alpha[g, d],
+        matrix[g, d]:alpha ~ normal(0, 1)
+    ), data = sim, chains = 4, cores = 4
+)
+
+traceplot(m2)
+```
+
+
+```{r}
+library(tidybayes)
+library(tidybayes.rethinking)
+library(modelr)
+library(ggdist)
+
+grid <- sim |> data_grid(d, g) 
+
+pred <- bind_rows(
+    grid |> add_linpred_draws(m1) |> mutate(m = 1),
+    grid |> add_linpred_draws(m2) |> mutate(m = 2)
+) |>
+    mutate(.logodds = logit(.linpred))
+
+pred |>
+    ggplot(aes(.logodds, factor(d))) + 
+    stat_halfeye(
+        aes(fill = factor(m)), alpha = .4
+    ) + 
+    facet_wrap(~ factor(g), ncol = 1)
+    
+```
+
+Collider bias is at play here. It's difficult to assess the direct effects of discrimination, because it is mediated by ability. We can estimate the total effect of discrimination, but that doesn't really equip us to make policy interventions. 
+
+### Questions for meeting A
+
+- What, in your own words, is a collider? 
