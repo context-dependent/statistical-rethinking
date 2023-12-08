@@ -98,5 +98,26 @@ $${#eq-non-centered}
 - Basically, we collapse the n priors into an n-dimensional multivariate normal prior. 
 
 $$
-\left[\alpha_j, \beta_j \right] \sim \text{MVNormal}\left(\left[\overline{\alpha}, \overline{\beta}\right], \left[\sigma, \tau\right] \right)
+\begin{align*}
+\left[\alpha_j, \beta_j \right] &\sim \text{MVNormal}\left(\left[\overline{\alpha}, \overline{\beta}\right], R, \left[\sigma, \tau \right] \right)
+\overline{\alpha}, \overline{\beta} &\sim \text{Normal}(0, 1) \\
+\sigma, \tau &\sim \text{Exponential}(1) \\
+R &\sim \text{LKJCorr}(4)
+\end{align*}
+$${#eq-2d-centered}
+
+In the above, we construct a centered parameterization of the multivariate normal prior.
+For the same efficiency reasons as before, we can replace it with a non-centered parameterization: 
+
 $$
+\begin{align*}
+\alpha &= \overline{\alpha} + v_{j, 1} \\
+\beta &= \overline{\beta} + v_{j, 2} \\
+v = (\text{diag}(\sigma)\mathcal{LZ})^\top \\
+\mathcal{Z}_{j, k} &\sim \text{Normal}(0, 1) \\
+\overline{\alpha}, \overline{\beta} &\sim \text{Normal}(0, 1) \\
+\sigma_{k} &\sim \text{Exponential}(1) \\
+\mathcal{R} &\sim \text{LKJCorr}(4)
+\end{align*}
+
+

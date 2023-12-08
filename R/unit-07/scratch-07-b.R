@@ -66,7 +66,7 @@ d_stan_classic <- list(
     J = n_distinct(d$district),
     L = 1,
     jj = as.integer(d$district),
-    u = matrix(rep(1, nrow(d)), ncol = 1),
+    u = matrix(rep(1, n_distinct(d$district)), ncol = 1),
     x = matrix(d$urban, ncol = 1),
     y = d$use_contraception
 )
@@ -74,3 +74,4 @@ d_stan_classic <- list(
 ms04 <- cmdstan_model("R/unit-07/ms0704.stan")
 
 fs04 <- ms04$sample(data = d_stan_classic, seed = 123)
+fs04$cmdstan_summary()

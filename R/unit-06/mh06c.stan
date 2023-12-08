@@ -29,9 +29,7 @@ transformed parameters {
 
 model { 
     sigma ~ exponential(1);
-    
     to_vector(b_sp) ~ normal(0, 1);
-    
     a_bar ~ normal(0, 1.5);
     a ~ normal(a_bar, sigma);
     b_density ~ normal(0, 1);

@@ -43,7 +43,7 @@ library(igraph)
 
 n <- 25
 dyads <- t(combn(n, 2))
-friends <- rbinom(ncol(dyads), 1, .1))
+friends <- rbinom(ncol(dyads), 1, .1)
 alpha <- -3
 p_tie <- matrix(0, n, n)
 p_tie[dyads[friends == 1, ]] <- 1
@@ -57,9 +57,13 @@ lam_gift <- function(tie) {
 }
 
 gifts <- rpois(length(sim_tie), exp(lam_gift(sim_tie))) |> matrix(ncol = n)
+gifts_ab <- gifts[dyads]
+gifts_ba <- gifts[dyads[, c(2, 1)]]
+
+
 sng <- graph_from_adjacency_matrix(sim_tie, mode = "directed")
 lx <- layout_nicely(sng)
-plot(sng, layout = lx, vertex.size = 10, edge.arrow.size=.5, edge.arrow.width=.4, edge.curved=.2)
+plot(sng, layout = lx, vertex.size = 10, edge.arrow.size = .5, edge.arrow.width = .4, edge.curved = .2)
 ```
 
 $$

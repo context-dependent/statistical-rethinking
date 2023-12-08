@@ -44,3 +44,10 @@ model {
     b_action ~ normal(0, 0.5);
     response ~ ordered_logistic(phi, alpha);
 }
+
+generated quantities {
+    vector[n] log_lik;
+    for (i in 1:n) {
+        log_lik[i] = ordered_logistic_lpmf(response[i] | phi[i], alpha);
+    }
+}
